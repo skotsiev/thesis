@@ -4,16 +4,13 @@ import org.apache.spark.sql.SparkSession;
 import java.util.Properties;
 
 public class Initializer {
-
     static public Properties connectionProperties(){
         final Properties connectionProperties = new Properties();
         connectionProperties.put("user", "root");
         connectionProperties.put("password", "root");
         return connectionProperties;
     }
-
     static public void createViews(SparkSession spark){
-
         Dataset<Row> CustomerTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "tpch.CUSTOMER", Initializer.connectionProperties());
         Dataset<Row> LineItemTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "tpch.LINEITEM", Initializer.connectionProperties());
         Dataset<Row> NationTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "tpch.NATION", Initializer.connectionProperties());
