@@ -4,7 +4,7 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.concurrent.TimeUnit;
 
-public class batchExecution {
+public class BatchExecution {
     static public void execute(SparkSession spark, String query){
         long start = System.currentTimeMillis();
         Initializer.createViews(spark);
