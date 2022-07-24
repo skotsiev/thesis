@@ -1,14 +1,15 @@
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import spark.batch.NativeQueries;
+import spark.Q01;
+import spark.batch.NativeQueriesBatch;
 import spark.Q03;
 import spark.common.Initializer;
-import spark.stream.StreamExecution;
+import spark.stream.NativeQueriesStream;
 
 import java.util.concurrent.TimeoutException;
 
 public class Main {
-    public static void main(String[] args) throws StreamingQueryException, TimeoutException {
+    public static void main(String[] args) throws StreamingQueryException, TimeoutException, InterruptedException {
 
         SparkSession spark = SparkSession
                 .builder()
@@ -19,25 +20,31 @@ public class Main {
 //                .config("spark.executor.instances", 4)
                         .getOrCreate();
         spark.sparkContext().setLogLevel("ERROR");
-        String execType = args[0];
-        String query = args[1];
+        String execType = args[0].toLowerCase();
+        String query = args[1].toLowerCase();
         System.out.println("Executing with args: " + execType + ", " + query);
 
-        Initializer.initAll(spark);
-
-        if (execType.equalsIgnoreCase("batch")){
-            NativeQueries.execute(spark, query);
+        if (execType.equals("nativebatch")){
+            Initializer.init(spark);
+            NativeQueriesBatch.execute(spark, query);
         }
-        else if (execType.equalsIgnoreCase("stream")) {
-            StreamExecution.execute(spark, query + "s");
+        else if (execType.equals("nativestream")) {
+            Initializer.init(spark);
+            NativeQueriesStream.execute(spark, query + "s");
         }
-        else if (execType.equalsIgnoreCase("q03")){
-                Q03.executeStream(spark);
+        else if (execType.equals("batch") && query.equals("q03")){
+                Q03.executeBatch(spark);
+        }
+        else if (execType.equals("stream") && query.equals("q03")){
+            Q03.executeStream(spark);
+        }
+        else if (execType.equals("stream") && query.equals("q01")){
+            Q01.executeStream(spark);
         }
         else{
             System.out.println("invalid args");
         }
-
-        spark.stop();
+        Thread.sleep(86400000);
+        spark.wait();
     }
 }

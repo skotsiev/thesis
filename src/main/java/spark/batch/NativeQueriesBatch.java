@@ -8,7 +8,7 @@ import spark.common.Queries;
 
 import java.util.concurrent.TimeUnit;
 
-public class NativeQueries {
+public class NativeQueriesBatch {
     static public void execute(SparkSession spark, String query){
         long start = System.currentTimeMillis();
         Dataset<Row> q = spark.sql(Queries.hashMap.get(query));

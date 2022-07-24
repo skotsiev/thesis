@@ -5,7 +5,7 @@ import org.apache.spark.sql.types.StructType;
 
 public class Schemas {
 
-    static StructType schemaCustomer = new StructType()
+    public static StructType schemaCustomer = new StructType()
             .add("c_custkey", DataTypes.IntegerType)
             .add("c_name", DataTypes.StringType)
             .add("c_address", DataTypes.StringType)
@@ -15,7 +15,7 @@ public class Schemas {
             .add("c_mktsegment", DataTypes.StringType)
             .add("c_comment", DataTypes.StringType);
 
-    static StructType schemaLineitem = new StructType()
+    public static StructType schemaLineitem = new StructType()
             .add("l_orderkey", DataTypes.IntegerType)
             .add("l_partkey", DataTypes.IntegerType)
             .add("l_suppkey", DataTypes.IntegerType)
@@ -33,13 +33,13 @@ public class Schemas {
             .add("l_shipmode", DataTypes.StringType)
             .add("l_comment", DataTypes.StringType);
 
-    static StructType schemaNation = new StructType()
+    public static StructType schemaNation = new StructType()
             .add("n_nationkey", DataTypes.IntegerType)
             .add("n_name", DataTypes.StringType)
             .add("n_regionkey", DataTypes.IntegerType)
             .add("n_comment", DataTypes.StringType);
 
-    static StructType schemaOrders = new StructType()
+    public static StructType schemaOrders = new StructType()
             .add("o_orderkey", DataTypes.IntegerType)
             .add("o_custkey", DataTypes.IntegerType)
             .add("o_orderstatus", DataTypes.StringType)
@@ -50,7 +50,7 @@ public class Schemas {
             .add("o_shippriority", DataTypes.IntegerType)
             .add("o_comment", DataTypes.StringType);
 
-    static StructType schemaPart = new StructType()
+    public static StructType schemaPart = new StructType()
             .add("p_partkey", DataTypes.IntegerType)
             .add("p_name", DataTypes.StringType)
             .add("p_mfgr", DataTypes.StringType)
@@ -61,19 +61,19 @@ public class Schemas {
             .add("p_retailprice", DataTypes.DoubleType)
             .add("p_comment", DataTypes.StringType);
 
-    static StructType schemaPartsupp = new StructType()
+    public static StructType schemaPartsupp = new StructType()
             .add("ps_partkey", DataTypes.IntegerType)
             .add("ps_suppkey", DataTypes.IntegerType)
             .add("ps_availqty", DataTypes.IntegerType)
             .add("ps_supplycost", DataTypes.DoubleType)
             .add("ps_comment", DataTypes.StringType);
 
-    static StructType schemaRegion = new StructType()
+    public static StructType schemaRegion = new StructType()
             .add("r_regionkey", DataTypes.IntegerType)
             .add("r_name", DataTypes.StringType)
             .add("r_comment", DataTypes.StringType);
 
-    static StructType schemaSupplier = new StructType()
+    public static StructType schemaSupplier = new StructType()
             .add("s_suppkey", DataTypes.IntegerType)
             .add("s_name", DataTypes.StringType)
             .add("s_address", DataTypes.StringType)
@@ -81,7 +81,4 @@ public class Schemas {
             .add("s_phone", DataTypes.StringType)
             .add("s_acctbal", DataTypes.DoubleType)
             .add("s_comment", DataTypes.StringType);
-
-
-
 }
