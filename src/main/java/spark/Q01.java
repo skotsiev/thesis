@@ -6,11 +6,11 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.OutputMode;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import spark.common.Schemas;
 
 import java.util.concurrent.TimeoutException;
 
 import static org.apache.spark.sql.functions.*;
+import static spark.common.Schemas.createSchema;
 
 public class Q01
 {
@@ -22,7 +22,7 @@ public class Q01
                 .option("header", false)
                 .option("delimiter", "|")
                 .format("csv")
-                .schema(Schemas.schemaLineitem)
+                .schema(createSchema("lineitem"))
                 .csv(lineitemFile);
 
         lineItemStreamDF.createOrReplaceTempView("FS_LINEITEM");

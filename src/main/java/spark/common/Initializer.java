@@ -6,6 +6,8 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.Properties;
 
+import static spark.common.Schemas.createSchema;
+
 public class Initializer {
     static public Properties connectionProperties(){
         final Properties connectionProperties = new Properties();
@@ -21,14 +23,15 @@ public class Initializer {
                 .option("header", false)
                 .option("delimiter","|")
                 .format("csv")
-                .schema(Schemas.schemaLineitem)
+                .schema(createSchema("lineitem"))
                 .csv(lineitemFile);
 
         Dataset<Row> ordersStream = spark.readStream()
                 .option("header", false)
                 .option("delimiter","|")
                 .format("csv")
-                .schema(Schemas.schemaOrders)
+
+                .schema(createSchema("orders"))
                 .csv(ordersFile);
 
         Dataset<Row> customerTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "tpch.CUSTOMER", Initializer.connectionProperties());

@@ -7,11 +7,11 @@ import org.apache.spark.sql.streaming.OutputMode;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
 import spark.common.Initializer;
-import spark.common.Schemas;
 
 import java.util.concurrent.TimeoutException;
 
 import static org.apache.spark.sql.functions.*;
+import static spark.common.Schemas.createSchema;
 
 public class Q03 {
     static public void executeBatch(SparkSession spark) {
@@ -54,7 +54,7 @@ public class Q03 {
                 .option("header", false)
                 .option("delimiter", "|")
                 .format("csv")
-                .schema(Schemas.schemaLineitem)
+                .schema(createSchema("lineitem"))
                 .csv(lineitemFile)
                 .where(col("l_shipdate").$greater("1995-03-15"));
 
@@ -62,7 +62,7 @@ public class Q03 {
                 .option("header", false)
                 .option("delimiter", "|")
                 .format("csv")
-                .schema(Schemas.schemaOrders)
+                .schema(createSchema("orders"))
                 .csv(ordersFile)
                 .where(col("o_orderdate").$less("1995-03-15"));
 
@@ -76,7 +76,7 @@ public class Q03 {
                         , col("l_orderkey").$eq$eq$eq(col("o_orderkey")))
                 .join(fCustomerDF
                         ,col("o_custkey").$eq$eq$eq(col("c_custkey")))
-//                .withColumn("timestamp", current_timestamp())
+                .withColumn("timestamp", current_timestamp())
 //                .withWatermark("timestamp", "30 minutes")
                 .withColumn("volume"
                         , expr("l_extendedprice * ( 1 - l_discount)"))
