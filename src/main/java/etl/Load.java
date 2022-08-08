@@ -17,6 +17,7 @@ public class Load {
         long start = System.currentTimeMillis();
         dataFrame
                 .withColumn("register_date", current_timestamp())
+                .withColumn("update_date", current_timestamp())
                 .write()
 //                .option("drop", "true")
                 .mode("Append")
@@ -26,5 +27,4 @@ public class Load {
         long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
         System.out.println("Elapsed time to write: = " + elapsedTimeSeconds + " sec");
     }
-
 }

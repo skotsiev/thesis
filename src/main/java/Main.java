@@ -1,5 +1,3 @@
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
 import spark.Q01;
@@ -11,8 +9,6 @@ import spark.stream.NativeQueriesStream;
 import java.util.concurrent.TimeoutException;
 
 import static etl.Extract.extractFromCsv;
-import static etl.Load.writeToMysql;
-import static etl.Transform.validateDimensions;
 
 public class Main {
     public static void main(String[] args) throws StreamingQueryException, TimeoutException {
@@ -31,10 +27,8 @@ public class Main {
         System.out.println("Executing with args: " + execType + ", " + query);
 
         if (execType.equals("extract")){
-            Dataset<Row> dataframe = extractFromCsv(spark, "nation", "0.1GB");
-            if(validateDimensions(spark, dataframe,"nation")) {
-                writeToMysql(dataframe, "nation");
-            }
+            extractFromCsv(spark, query, "0.1GB");
+
         }
         else if (execType.equals("nativebatch")){
             Initializer.init(spark);

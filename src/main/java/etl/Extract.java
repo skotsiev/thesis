@@ -6,10 +6,11 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.concurrent.TimeUnit;
 
+import static etl.Transform.validateDimensions;
 import static spark.common.Schemas.createSchema;
 
 public class Extract {
-    static public Dataset<Row> extractFromCsv(SparkSession spark, String file, String sizeFactor){
+    static public void extractFromCsv(SparkSession spark, String file, String sizeFactor){
         final String rootPath = "/home/soslan/Desktop/data/";
         final String path = rootPath + sizeFactor + "/" + file + ".tbl";
 
@@ -26,6 +27,7 @@ public class Extract {
         long elapsedTime = end - start;
         long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
         System.out.println("Elapsed time to read: = " + elapsedTimeSeconds + " seconds");
-        return dataFrame;
+
+        validateDimensions(spark, dataFrame,file);
     }
 }
