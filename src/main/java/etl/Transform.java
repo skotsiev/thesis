@@ -5,35 +5,47 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
+import scala.collection.Seq;
 import spark.common.Initializer;
 
-import static etl.CommonData.tableInfo;
+import java.util.ArrayList;
+
 import static etl.Load.writeToMysql;
 import static org.apache.spark.sql.functions.col;
 
 public class Transform {
 
     public static void validateDimensions(SparkSession spark, Dataset<Row> dataFrame, String name){
-        int primaryKeyCount = Integer.valueOf(tableInfo(name).get("pk#"));
-        Column[] primaryKeyColumn = new Column[primaryKeyCount];
-        String primaryKey = tableInfo(name).get("pk1");
+        CommonData commonData = new CommonData();
+        int primaryKeyCount = commonData.tableInfo(name).getPrimaryKeys().size();
+        int foreignKeyCount = commonData.tableInfo(name).getForeignKeys().size()/2;
 
-        for (int i = 0; i < primaryKeyCount; i++){
-            String columnName = "pk" + String.valueOf(i + 1) ;
-            System.out.println("columnName " + columnName);
-            Column column = col(tableInfo(name).get(columnName));
-            System.out.println("column " + column);
+        ArrayList<Column> primaryKeyColumn = new ArrayList<>();
+        ArrayList<String> primaryKeys = commonData.tableInfo(name).getPrimaryKeys();
 
-            primaryKeyColumn[i] =  column;
+        for(String i : primaryKeys){
+            primaryKeyColumn.add(col(i));
         }
+
+
+//    for (int i = 0; i < primaryKeyCount; i++){
+//
+//
+//            System.out.println("columnName " + columnName);
+//            Column column = col(commonData.tableInfo(name).get(columnName));
+//            System.out.println("column " + column);
+//
+//            primaryKeyColumn[i] =  col(primaryKey.get(i));
+//
+//        }
 
         Dataset<Row> dataframeFromDB = spark.
                 read()
                 .jdbc("jdbc:mysql://localhost:3306", "warehouse." + name, Initializer.connectionProperties())
-                .select(primaryKeyColumn);
+                .select((Seq<Column>) primaryKeyColumn);
 
         Dataset<Row> newDataFrameKeys = dataFrame
-                .select(primaryKeyColumn);
+                .select((Seq<Column>) primaryKeyColumn);
 
         Dataset<Row> validData = newDataFrameKeys
                 .except(dataframeFromDB)
@@ -53,7 +65,5 @@ public class Transform {
             validData.show();
             writeToMysql(validData, name);
         }
-
-
     }
 }

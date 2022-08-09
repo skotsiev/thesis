@@ -1,16 +1,41 @@
 package etl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CommonData {
 
+    public class TableObj {
 
-    public static HashMap<String, String> tableInfo(String name) {
+        ArrayList<String> primaryKeys = new ArrayList<String>();
+        ArrayList<String> foreignKeys = new ArrayList<String>();
+
+        public ArrayList<String> getPrimaryKeys() {
+            return primaryKeys;
+        }
+        public ArrayList<String> getForeignKeys() {
+            return foreignKeys;
+        }
+
+        public void addPrimaryKeys(String key) {
+            this.primaryKeys.add(key);
+        }
+        public void addForeignKeys(String key) {
+            this.foreignKeys.add(key);
+        }
+    }
+
+
+    public TableObj tableInfo(String name) {
 
         HashMap<String, String> hashMap = new HashMap<>();
-
+        TableObj tableObj = new TableObj();
         switch(name){
             case "customer": {
+                tableObj.addPrimaryKeys("c_custkey");
+                tableObj.addForeignKeys("c_nationkey");
+                tableObj.addForeignKeys("n_nationkey");
+
                 hashMap.put("pk#","1");
                 hashMap.put("fk#","1");
                 hashMap.put("pk1","c_custkey");
@@ -19,6 +44,13 @@ public class CommonData {
                 break;
             }
             case "lineitem": {
+                tableObj.addPrimaryKeys("l_orderkey");
+                tableObj.addPrimaryKeys("l_linenumber");
+                tableObj.addForeignKeys("l_partkey");
+                tableObj.addForeignKeys("p_partkey");
+                tableObj.addForeignKeys("l_suppkey");
+                tableObj.addForeignKeys("s_suppkey");
+
                 hashMap.put("pk#","2");
                 hashMap.put("fk#","2");
                 hashMap.put("pk1","l_orderkey");
@@ -30,6 +62,10 @@ public class CommonData {
                 break;
             }
             case "nation": {
+                tableObj.addPrimaryKeys("n_nationkey");
+                tableObj.addForeignKeys("n_regionkey");
+                tableObj.addForeignKeys("r_regionkey");
+
                 hashMap.put("pk#","1");
                 hashMap.put("fk#","1");
                 hashMap.put("pk1","n_nationkey");
@@ -38,6 +74,10 @@ public class CommonData {
                 break;
             }
             case "orders": {
+                tableObj.addPrimaryKeys("o_orderkey");
+                tableObj.addForeignKeys("o_custkey");
+                tableObj.addForeignKeys("c_custkey");
+
                 hashMap.put("pk#","1");
                 hashMap.put("fk#","1");
                 hashMap.put("pk1","o_orderkey");
@@ -46,12 +86,21 @@ public class CommonData {
                 break;
             }
             case "part": {
+                tableObj.addPrimaryKeys("p_partkey");
+
                 hashMap.put("pk#","1");
                 hashMap.put("fk#","0");
                 hashMap.put("pk1","p_partkey");
                 break;
             }
             case "partsupp": {
+                tableObj.addPrimaryKeys("ps_partkey");
+                tableObj.addPrimaryKeys("ps_suppkey");
+                tableObj.addForeignKeys("ps_partkey");
+                tableObj.addForeignKeys("p_partkey");
+                tableObj.addForeignKeys("ps_suppkey");
+                tableObj.addForeignKeys("s_suppkey");
+
                 hashMap.put("pk#","2");
                 hashMap.put("fk#","2");
                 hashMap.put("pk1","ps_partkey");
@@ -63,15 +112,22 @@ public class CommonData {
                 break;
             }
             case "region": {
+                tableObj.addPrimaryKeys("r_regionkey");
+
                 hashMap.put("pk1","r_regionkey");
                 break;
             }
             case "supplier": {
+                tableObj.addPrimaryKeys("s_suppkey");
+                tableObj.addForeignKeys("s_nationkey");
+                tableObj.addForeignKeys("n_nationkey");
+
                 hashMap.put("pk1","s_suppkey");
                 hashMap.put("fk1","n_nationkey");
                 break;
             }
         }
-        return hashMap;
+        return tableObj;
     }
+
 }
