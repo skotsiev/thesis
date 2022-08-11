@@ -6,7 +6,7 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.concurrent.TimeUnit;
 
-import static etl.Transform.validateDimensions;
+import static etl.Transform.validatePrimaryKey;
 import static spark.common.Schemas.createSchema;
 
 public class Extract {
@@ -28,6 +28,8 @@ public class Extract {
         long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
         System.out.println("Elapsed time to read: = " + elapsedTimeSeconds + " seconds");
 
-        validateDimensions(spark, dataFrame,file);
+        validatePrimaryKey(spark, dataFrame,file);
+
+//        writeToMysql(dataFrame, file);
     }
 }

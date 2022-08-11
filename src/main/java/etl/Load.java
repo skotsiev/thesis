@@ -19,8 +19,9 @@ public class Load {
                 .withColumn("register_date", current_timestamp())
                 .withColumn("update_date", current_timestamp())
                 .write()
-//                .option("drop", "true")
                 .mode("Append")
+//                .option("drop", "true")
+//                .mode("overwrite")
                 .jdbc("jdbc:mysql://localhost:3306", "warehouse." + name, Initializer.connectionProperties());
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;

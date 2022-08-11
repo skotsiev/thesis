@@ -5,7 +5,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import scala.collection.Seq;
 import spark.common.Initializer;
 
 import java.util.ArrayList;
@@ -15,52 +14,120 @@ import static org.apache.spark.sql.functions.col;
 
 public class Transform {
 
-    public static void validateDimensions(SparkSession spark, Dataset<Row> dataFrame, String name){
+    public static void validatePrimaryKey(SparkSession spark, Dataset<Row> dataFrame, String name){
         CommonData commonData = new CommonData();
         int primaryKeyCount = commonData.tableInfo(name).getPrimaryKeys().size();
-        int foreignKeyCount = commonData.tableInfo(name).getForeignKeys().size()/2;
 
-        ArrayList<Column> primaryKeyColumn = new ArrayList<>();
+        Column[] primaryKeyColumn = new Column[primaryKeyCount];
         ArrayList<String> primaryKeys = commonData.tableInfo(name).getPrimaryKeys();
 
-        for(String i : primaryKeys){
-            primaryKeyColumn.add(col(i));
+        for(int j = 0 ; j < primaryKeyCount; j++){
+            primaryKeyColumn[j] = col(primaryKeys.get(j));
+            System.out.println("primaryKeyColumn " + primaryKeyColumn[j]);
         }
-
-
-//    for (int i = 0; i < primaryKeyCount; i++){
-//
-//
-//            System.out.println("columnName " + columnName);
-//            Column column = col(commonData.tableInfo(name).get(columnName));
-//            System.out.println("column " + column);
-//
-//            primaryKeyColumn[i] =  col(primaryKey.get(i));
-//
-//        }
 
         Dataset<Row> dataframeFromDB = spark.
                 read()
                 .jdbc("jdbc:mysql://localhost:3306", "warehouse." + name, Initializer.connectionProperties())
-                .select((Seq<Column>) primaryKeyColumn);
+                .select(primaryKeyColumn);
 
         Dataset<Row> newDataFrameKeys = dataFrame
-                .select((Seq<Column>) primaryKeyColumn);
+                .select(primaryKeyColumn);
 
-        Dataset<Row> validData = newDataFrameKeys
-                .except(dataframeFromDB)
-                .join(dataFrame, dataFrame.col(primaryKey).$eq$eq$eq(newDataFrameKeys.col(primaryKey)))
-                .drop(dataFrame.col(primaryKey));
+        Dataset<Row> validData;
+        Dataset<Row> invalidData;
 
-        Dataset<Row> invalidData = newDataFrameKeys
-                .intersect(dataframeFromDB)
-                .join(dataFrame, dataFrame.col(primaryKey).$eq$eq$eq(newDataFrameKeys.col(primaryKey)))
-                .drop(dataFrame.col(primaryKey));
+        if (primaryKeyCount == 1){
+            validData = newDataFrameKeys
+                    .except(dataframeFromDB)
+                    .join(dataFrame, dataFrame.col(primaryKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(0))))
+                    .drop(dataFrame.col(primaryKeys.get(0)));
 
-        dataframeFromDB.show();
-        dataFrame.show();
+            invalidData = newDataFrameKeys
+                    .intersect(dataframeFromDB)
+                    .join(dataFrame, dataFrame.col(primaryKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(0))))
+                    .drop(dataFrame.col(primaryKeys.get(0)));
 
-        if (invalidData != null) invalidData.show();
+        } else {
+            validData = newDataFrameKeys
+                    .except(dataframeFromDB)
+                    .join(dataFrame, (dataFrame.col(primaryKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(0)))
+                            .$amp$amp(dataFrame.col(primaryKeys.get(1)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(1))))))
+                    .drop(dataFrame.col(primaryKeys.get(0)))
+                    .drop(dataFrame.col(primaryKeys.get(1)));
+
+            invalidData = newDataFrameKeys
+                    .intersect(dataframeFromDB)
+                    .join(dataFrame, (dataFrame.col(primaryKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(0)))
+                            .$amp$amp(dataFrame.col(primaryKeys.get(1)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(1))))))
+                    .drop(dataFrame.col(primaryKeys.get(0)))
+                    .drop(dataFrame.col(primaryKeys.get(1)));
+        }
+        System.out.println("invalidData");
+        if (invalidData != null) {
+            invalidData.show();
+        }
+        System.out.println("validData");
+        if (validData != null) {
+            validData.show();
+        }
+
+    }
+
+    public static void validateForeignKeys(SparkSession spark, Dataset<Row> dataFrame, String name){
+        CommonData commonData = new CommonData();
+        int foreignKeyCount = commonData.tableInfo(name).getPrimaryKeys().size();
+
+        Column[] foreignKeyColumn = new Column[foreignKeyCount];
+        ArrayList<String> foreignKeys = commonData.tableInfo(name).getForeignKeys();
+
+        for(int j = 0 ; j < foreignKeyCount; j++){
+            foreignKeyColumn[j] = col(foreignKeys.get(j));
+            System.out.println("primaryKeyColumn " + foreignKeyColumn[j]);
+        }
+
+        Dataset<Row> dataframeFromDB = spark
+                .read()
+                .jdbc("jdbc:mysql://localhost:3306", "warehouse." + name, Initializer.connectionProperties())
+                .select(foreignKeyColumn);
+
+        Dataset<Row> newDataFrameKeys = dataFrame
+                .select(foreignKeyColumn);
+
+        Dataset<Row> validData;
+        Dataset<Row> invalidData;
+
+        if (foreignKeyCount == 1){
+            validData = newDataFrameKeys
+                    .except(dataframeFromDB)
+                    .join(dataFrame, dataFrame.col(foreignKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(0))))
+                    .drop(dataFrame.col(foreignKeys.get(0)));
+
+            invalidData = newDataFrameKeys
+                    .intersect(dataframeFromDB)
+                    .join(dataFrame, dataFrame.col(foreignKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(0))))
+                    .drop(dataFrame.col(foreignKeys.get(0)));
+
+        } else {
+            validData = newDataFrameKeys
+                    .except(dataframeFromDB)
+                    .join(dataFrame, (dataFrame.col(foreignKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(0)))
+                            .$amp$amp(dataFrame.col(foreignKeys.get(1)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(1))))))
+                    .drop(dataFrame.col(foreignKeys.get(0)))
+                    .drop(dataFrame.col(foreignKeys.get(1)));
+
+            invalidData = newDataFrameKeys
+                    .intersect(dataframeFromDB)
+                    .join(dataFrame, (dataFrame.col(foreignKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(0)))
+                            .$amp$amp(dataFrame.col(foreignKeys.get(1)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(1))))))
+                    .drop(dataFrame.col(foreignKeys.get(0)))
+                    .drop(dataFrame.col(foreignKeys.get(1)));
+        }
+        System.out.println("invalidData");
+        if (invalidData != null) {
+            invalidData.show();
+        }
+        System.out.println("validData");
         if (validData != null) {
             validData.show();
             writeToMysql(validData, name);
