@@ -1,3 +1,5 @@
+import etl.pipeline.InitialDataImport;
+import etl.pipeline.UpdateTables;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
 import spark.Q01;
@@ -8,7 +10,6 @@ import spark.stream.NativeQueriesStream;
 
 import java.util.concurrent.TimeoutException;
 
-import static etl.Extract.extractFromCsv;
 
 public class Main {
     public static void main(String[] args) throws StreamingQueryException, TimeoutException {
@@ -27,8 +28,14 @@ public class Main {
         System.out.println("Executing with args: " + execType + ", " + query);
 
         if (execType.equals("extract")){
-            extractFromCsv(spark, query, "0.1GB");
 
+            InitialDataImport pipeline = new InitialDataImport(spark, query, "0.1GB");
+            pipeline.executePipeline();
+        }
+        else if (execType.equals("update")){
+
+            UpdateTables pipeline = new UpdateTables(spark, query, "0.1GB");
+            pipeline.executePipeline();
         }
         else if (execType.equals("nativebatch")){
             Initializer.init(spark);

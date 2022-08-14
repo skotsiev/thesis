@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class CommonData {
 
-    public class TableObj {
+    public static class TableObj {
 
         ArrayList<String> primaryKeys = new ArrayList<>();
         ArrayList<String> foreignKeys = new ArrayList<>();
@@ -19,6 +19,9 @@ public class CommonData {
             return foreignKeys;
         }
 
+        public ArrayList<String> getForeignKeyTable() {
+            return foreignKeyTable;
+        }
         public void addPrimaryKeys(String key) {
             this.primaryKeys.add(key);
         }
