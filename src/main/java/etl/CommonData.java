@@ -8,9 +8,7 @@ public class CommonData {
 
         ArrayList<String> primaryKeys = new ArrayList<>();
         ArrayList<String> foreignKeys = new ArrayList<>();
-
         ArrayList<String> foreignKeyTable = new ArrayList<>();
-
 
         public ArrayList<String> getPrimaryKeys() {
             return primaryKeys;
@@ -33,7 +31,6 @@ public class CommonData {
             this.foreignKeyTable.add(key);
         }
     }
-
 
     public TableObj tableInfo(String name) {
 
@@ -82,7 +79,7 @@ public class CommonData {
                 tableObj.addForeignKeys("p_partkey");
                 tableObj.addForeignKeys("ps_suppkey");
                 tableObj.addForeignKeys("s_suppkey");
-                tableObj.addForeignKeyTable("partsupp");
+                tableObj.addForeignKeyTable("part");
                 tableObj.addForeignKeyTable("supplier");
                 break;
             }

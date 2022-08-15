@@ -38,11 +38,11 @@ public class Extract {
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
         if (elapsedTime < 1000){
-            System.out.println("Elapsed time to read: = " + elapsedTime + " millis");
+            System.out.println("Elapsed time to read: " + elapsedTime + " millis");
         }
             else {
             long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
-            System.out.println("Elapsed time to read: = " + elapsedTimeSeconds + " seconds");
+            System.out.println("Elapsed time to read: " + elapsedTimeSeconds + " seconds");
         }
             return dataFrame;
     }

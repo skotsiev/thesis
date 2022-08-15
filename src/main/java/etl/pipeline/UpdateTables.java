@@ -25,15 +25,20 @@ public class UpdateTables {
 
         Transform transform = new Transform(spark,name);
         Dataset<Row> validPrimaryKeyData = transform.validDataPrimaryKeyCheck(newData);
-        Dataset<Row> validData = transform.validDataForeinKeyCheck(validPrimaryKeyData);
+        Dataset<Row> validData = transform.validDataForeignKeyCheck(validPrimaryKeyData);
 
         Dataset<Row> invalidPrimaryKeyData = transform.invalidDataPrimaryKeyCheck(newData);
         Dataset<Row> invalidForeignKeyData = transform.invalidDataForeinKeyCheck(validPrimaryKeyData);
 
-
+        Load load = new Load(name);
         if (validData!=null){
-            Load load = new Load(validData, name);
-            load.appendToMysql();
+            load.appendToMysql(validData,true);
+        }
+        if (invalidPrimaryKeyData!=null){
+            load.appendToMysql(invalidPrimaryKeyData,false);
+        }
+        if (invalidForeignKeyData!=null){
+            load.appendToMysql(invalidForeignKeyData,false);
         }
     }
 }

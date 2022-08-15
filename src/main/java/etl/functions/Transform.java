@@ -11,6 +11,7 @@ import spark.common.Initializer;
 import java.util.ArrayList;
 
 import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.lit;
 
 public class Transform {
 
@@ -86,7 +87,8 @@ public class Transform {
             invalidData = newDataFrameKeys
                     .intersect(dataframeFromDB)
                     .join(dataFrame, dataFrame.col(primaryKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(0))))
-                    .drop(dataFrame.col(primaryKeys.get(0)));
+                    .drop(dataFrame.col(primaryKeys.get(0)))
+                    .withColumn("reject_reason",lit("foreign key violation"));
 
         } else {
             invalidData = newDataFrameKeys
@@ -94,60 +96,81 @@ public class Transform {
                     .join(dataFrame, (dataFrame.col(primaryKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(0)))
                             .$amp$amp(dataFrame.col(primaryKeys.get(1)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(1))))))
                     .drop(dataFrame.col(primaryKeys.get(0)))
-                    .drop(dataFrame.col(primaryKeys.get(1)));
+                    .drop(dataFrame.col(primaryKeys.get(1)))
+                    .withColumn("reject_reason",lit("primary key violation"));
         }
         System.out.println("invalidDataPrimaryKeyCheck done");
         invalidData.show();
         return invalidData;
     }
 
-    public Dataset<Row> validDataForeinKeyCheck(Dataset<Row> dataFrame) {
+    public Dataset<Row> validDataForeignKeyCheck(Dataset<Row> dataFrame) {
         CommonData commonData = new CommonData();
-        int foreignKeyCount = commonData.tableInfo(name).getPrimaryKeys().size();
+        int foreignKeyCount = commonData.tableInfo(name).getForeignKeys().size();
 
-        Dataset<Row> validData = null;
-
-        if (foreignKeyCount > 0){
+        Dataset<Row> validData;
+        System.out.println("foreignKeyCount " + commonData.tableInfo(name).getPrimaryKeys());
+        if (foreignKeyCount >= 1){
+            System.out.println("inside validDataForeignKeyCheck loop");
             Column[] foreignKeyColumnTable1 = new Column[foreignKeyCount];
             Column[] foreignKeyColumnTable2 = new Column[foreignKeyCount];
             ArrayList<String> foreignKeys = commonData.tableInfo(name).getForeignKeys();
+            String[] foreignKeyTable = new String[foreignKeyCount];
 
             for (int j = 0; j < foreignKeyCount; j++) {
                 foreignKeyColumnTable1[j] = col(foreignKeys.get(2*j));
                 foreignKeyColumnTable2[j] = col(foreignKeys.get(2*j + 1));
+                foreignKeyTable[j] = commonData.tableInfo(name).getForeignKeyTable().get(j);
             }
-            String foreignKeyTable = commonData.tableInfo(name).getForeignKeyTable().get(0);
-
-            Dataset<Row> dataframeFromDB = spark
-                    .read()
-                    .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable, Initializer.connectionProperties())
-                    .select(foreignKeyColumnTable2);
 
             Dataset<Row> newDataFrameKeys = dataFrame
                     .select(foreignKeyColumnTable1);
 
             if (foreignKeyCount == 1) {
+
+                Dataset<Row> dataframeFromDB = spark
+                        .read()
+                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                        .select(foreignKeyColumnTable2);
+
                 validData = newDataFrameKeys
                         .intersect(dataframeFromDB)
                         .join(dataFrame, dataFrame.col(foreignKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(0))))
                         .drop(dataFrame.col(foreignKeys.get(0)));
             } else {
+
+                Dataset<Row> dataframeFromDB1 = spark
+                        .read()
+                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                        .select(foreignKeyColumnTable2[0]);
+
+                Dataset<Row> dataframeFromDB2 = spark
+                        .read()
+                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[1], Initializer.connectionProperties())
+                        .select(foreignKeyColumnTable2[1]);
+
+                Dataset<Row> dataframeFromDB = dataframeFromDB1.join(dataframeFromDB2);
+
+
                 validData = newDataFrameKeys
                         .intersect(dataframeFromDB)
                         .join(dataFrame, (dataFrame.col(foreignKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(0)))
                                 .$amp$amp(dataFrame.col(foreignKeys.get(2)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(2))))))
                         .drop(dataFrame.col(foreignKeys.get(0)))
-                        .drop(dataFrame.col(foreignKeys.get(1)));
+                        .drop(dataFrame.col(foreignKeys.get(2)));
             }
 
-            System.out.println("validDataForeinKeyCheck done");
+            System.out.println("validDataForeignKeyCheck done");
             validData.show();
+            return validData;
         }
-        return validData;
+        else {
+            return(dataFrame);
+        }
     }
     public Dataset<Row> invalidDataForeinKeyCheck(Dataset<Row> dataFrame) {
         CommonData commonData = new CommonData();
-        int foreignKeyCount = commonData.tableInfo(name).getPrimaryKeys().size();
+        int foreignKeyCount = commonData.tableInfo(name).getForeignKeys().size();
 
         Dataset<Row> invalidData = null;
 
@@ -155,33 +178,51 @@ public class Transform {
             Column[] foreignKeyColumnTable1 = new Column[foreignKeyCount];
             Column[] foreignKeyColumnTable2 = new Column[foreignKeyCount];
             ArrayList<String> foreignKeys = commonData.tableInfo(name).getForeignKeys();
+            String[] foreignKeyTable = new String[foreignKeyCount];
 
             for (int j = 0; j < foreignKeyCount; j++) {
                 foreignKeyColumnTable1[j] = col(foreignKeys.get(2*j));
                 foreignKeyColumnTable2[j] = col(foreignKeys.get(2*j + 1));
+                foreignKeyTable[j] = commonData.tableInfo(name).getForeignKeyTable().get(j);
             }
-            String foreignKeyTable = commonData.tableInfo(name).getForeignKeyTable().get(0);
-
-            Dataset<Row> dataframeFromDB = spark
-                    .read()
-                    .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable, Initializer.connectionProperties())
-                    .select(foreignKeyColumnTable2);
 
             Dataset<Row> newDataFrameKeys = dataFrame
                     .select(foreignKeyColumnTable1);
 
             if (foreignKeyCount == 1) {
+
+                Dataset<Row> dataframeFromDB = spark
+                        .read()
+                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                        .select(foreignKeyColumnTable2);
+
                 invalidData = newDataFrameKeys
-                        .except(dataframeFromDB)
+                        .intersect(dataframeFromDB)
                         .join(dataFrame, dataFrame.col(foreignKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(0))))
-                        .drop(dataFrame.col(foreignKeys.get(0)));
+                        .drop(dataFrame.col(foreignKeys.get(0)))
+                        .withColumn("reject_reason",lit("foreign key violation"));
             } else {
+
+                Dataset<Row> dataframeFromDB1 = spark
+                        .read()
+                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                        .select(foreignKeyColumnTable2[0]);
+
+                Dataset<Row> dataframeFromDB2 = spark
+                        .read()
+                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[1], Initializer.connectionProperties())
+                        .select(foreignKeyColumnTable2[1]);
+
+                Dataset<Row> dataframeFromDB = dataframeFromDB1.join(dataframeFromDB2);
+
+
                 invalidData = newDataFrameKeys
                         .except(dataframeFromDB)
                         .join(dataFrame, (dataFrame.col(foreignKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(0)))
                                 .$amp$amp(dataFrame.col(foreignKeys.get(2)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(2))))))
                         .drop(dataFrame.col(foreignKeys.get(0)))
-                        .drop(dataFrame.col(foreignKeys.get(1)));
+                        .drop(dataFrame.col(foreignKeys.get(2)))
+                        .withColumn("reject_reason",lit("foreign key violation"));
             }
 
             System.out.println("invalidDataForeinKeyCheck done");

@@ -46,8 +46,8 @@ public class InitialDataImport{
         Dataset<Row> data = extract.extractFromCsv();
 
         if(data != null){
-            Load load = new Load(data, name);
-            load.overwriteToMysql();
+            Load load = new Load(name);
+            load.overwriteToMysql(data);
         }
     }
 }
