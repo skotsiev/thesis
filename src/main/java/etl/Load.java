@@ -15,10 +15,10 @@ public class Load {
     }
     static String name;
 
-    public void overwriteToMysql(Dataset<Row> data){
+    public void overwriteToMysql(Dataset<Row> data, String schema){
         data.show();
 
-        System.out.println("[" + getClass().getSimpleName() + "]" + "\t\t\toverwriteToMysql: " + name );
+        System.out.println("[" + getClass().getSimpleName() + "]" + "\t\t\toverwriteToMysql: " + schema+ "." + name );
         long start = System.currentTimeMillis();
         try{
             data
@@ -26,7 +26,7 @@ public class Load {
                     .write()
                     .option("drop", "true")
                     .mode("overwrite")
-                    .jdbc("jdbc:mysql://localhost:3306", "warehouse." + name, Initializer.connectionProperties());
+                    .jdbc("jdbc:mysql://localhost:3306", schema+ "." + name, Initializer.connectionProperties());
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
             long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);

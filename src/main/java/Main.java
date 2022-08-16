@@ -1,10 +1,10 @@
+import pipelines.DataAnalyticsBatch;
 import pipelines.InitialDataImport;
 import pipelines.UpdateTables;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import spark.Q01;
-import spark.batch.NativeQueriesBatch;
-import spark.Q03;
+import spark.deprecated.Q01;
+import spark.deprecated.Q03;
 import spark.common.Initializer;
 import spark.stream.NativeQueriesStream;
 
@@ -39,7 +39,8 @@ public class Main {
         }
         else if (execType.equals("nativebatch")){
             Initializer.init(spark);
-            NativeQueriesBatch.execute(spark, query);
+            DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark);
+            pipeline.executePipeline(query);
         }
         else if (execType.equals("nativestream")) {
             Initializer.init(spark);

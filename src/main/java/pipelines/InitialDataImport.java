@@ -45,9 +45,9 @@ public class InitialDataImport{
         Extract extract = new Extract(spark, name, sizeFactor);
         Dataset<Row> data = extract.extractFromCsv();
 
-        if(data != null){
+        if(data.count() != 0){
             Load load = new Load(name);
-            load.overwriteToMysql(data);
+            load.overwriteToMysql(data, "warehouse");
         }
     }
 }
