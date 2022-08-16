@@ -21,13 +21,32 @@ public class NativeQueriesBatch {
         q.write()
                 .option("drop", "true")
                 .mode("overwrite")
-                .jdbc("jdbc:mysql://localhost:3306", "tpch." + query, Initializer.connectionProperties());
+                .jdbc("jdbc:mysql://localhost:3306", "data_analytics." + query, Initializer.connectionProperties());
         long end = System.currentTimeMillis();
         long elapsedTimeQuery = endQuery - start;
-        long elapsedTimeWrite = TimeUnit.MILLISECONDS.toSeconds(end - startWrite);
-        long elapsedTime = TimeUnit.MILLISECONDS.toSeconds(end - start);
-        System.out.println("elapsedTimeQuery: = " + elapsedTimeQuery + " millis");
-        System.out.println("elapsedTimeWrite: = " + elapsedTimeWrite + " sec");
-        System.out.println("elapsedTime : = " + elapsedTime + " sec");
+        long elapsedTimeWrite = end - startWrite;
+        long elapsedTime = end - start;
+
+        if (elapsedTimeQuery < 1000){
+            System.out.println("Elapsed time to query: " + elapsedTimeQuery + " millis");
+        }
+        else {
+            long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
+            System.out.println("Elapsed time to query: " + elapsedTimeSeconds + " seconds");
+        }
+        if (elapsedTimeWrite < 1000){
+            System.out.println("Elapsed time to write: " + elapsedTimeWrite + " millis");
+        }
+        else {
+            long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTimeWrite);
+            System.out.println("Elapsed time to write: " + elapsedTimeSeconds + " seconds");
+        }
+        if (elapsedTime < 1000){
+            System.out.println("Elapsed time to write: " + elapsedTime + " millis");
+        }
+        else {
+            long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
+            System.out.println("Elapsed time to write: " + elapsedTimeSeconds + " seconds");
+        }
     }
 }

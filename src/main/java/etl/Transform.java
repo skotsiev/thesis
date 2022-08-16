@@ -1,6 +1,5 @@
-package etl.functions;
+package etl;
 
-import etl.CommonData;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -10,8 +9,7 @@ import spark.common.Initializer;
 
 import java.util.ArrayList;
 
-import static org.apache.spark.sql.functions.col;
-import static org.apache.spark.sql.functions.lit;
+import static org.apache.spark.sql.functions.*;
 
 public class Transform {
 
@@ -23,14 +21,15 @@ public class Transform {
     private final SparkSession spark;
     private final String name;
 
-    public Dataset<Row>  validDataPrimaryKeyCheck(Dataset<Row> dataFrame){
-        CommonData commonData = new CommonData();
-        int primaryKeyCount = commonData.tableInfo(name).getPrimaryKeys().size();
+    public Dataset<Row> validDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataPrimaryKeyCheck");
+        TableObject tableObject = new TableObject(name);
+        int primaryKeyCount = tableObject.getPrimaryKeys().size();
 
         Column[] primaryKeyColumn = new Column[primaryKeyCount];
-        ArrayList<String> primaryKeys = commonData.tableInfo(name).getPrimaryKeys();
+        ArrayList<String> primaryKeys = tableObject.getPrimaryKeys();
 
-        for(int j = 0 ; j < primaryKeyCount; j++){
+        for (int j = 0; j < primaryKeyCount; j++) {
             primaryKeyColumn[j] = col(primaryKeys.get(j));
         }
 
@@ -44,7 +43,8 @@ public class Transform {
 
         Dataset<Row> validData;
 
-        if (primaryKeyCount == 1){
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "primaryKeyCount: " + primaryKeyCount);
+        if (primaryKeyCount == 1) {
             validData = newDataFrameKeys
                     .except(dataframeFromDB)
                     .join(dataFrame, dataFrame.col(primaryKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(0))))
@@ -57,19 +57,20 @@ public class Transform {
                     .drop(dataFrame.col(primaryKeys.get(0)))
                     .drop(dataFrame.col(primaryKeys.get(1)));
         }
-        System.out.println("validDataPrimaryKeyCheck done");
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataPrimaryKeyCheck done");
         validData.show();
         return validData;
     }
 
-    public Dataset<Row>  invalidDataPrimaryKeyCheck(Dataset<Row> dataFrame){
-        CommonData commonData = new CommonData();
-        int primaryKeyCount = commonData.tableInfo(name).getPrimaryKeys().size();
+    public Dataset<Row> invalidDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataPrimaryKeyCheck");
+        TableObject tableObject = new TableObject(name);
+        int primaryKeyCount = tableObject.getPrimaryKeys().size();
 
         Column[] primaryKeyColumn = new Column[primaryKeyCount];
-        ArrayList<String> primaryKeys = commonData.tableInfo(name).getPrimaryKeys();
+        ArrayList<String> primaryKeys = tableObject.getPrimaryKeys();
 
-        for(int j = 0 ; j < primaryKeyCount; j++){
+        for (int j = 0; j < primaryKeyCount; j++) {
             primaryKeyColumn[j] = col(primaryKeys.get(j));
         }
 
@@ -83,12 +84,12 @@ public class Transform {
 
         Dataset<Row> invalidData;
 
-        if (primaryKeyCount == 1){
+        if (primaryKeyCount == 1) {
             invalidData = newDataFrameKeys
                     .intersect(dataframeFromDB)
                     .join(dataFrame, dataFrame.col(primaryKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(0))))
                     .drop(dataFrame.col(primaryKeys.get(0)))
-                    .withColumn("reject_reason",lit("foreign key violation"));
+                    .withColumn("reject_reason", lit("primary key violation"));
 
         } else {
             invalidData = newDataFrameKeys
@@ -97,7 +98,7 @@ public class Transform {
                             .$amp$amp(dataFrame.col(primaryKeys.get(1)).$eq$eq$eq(newDataFrameKeys.col(primaryKeys.get(1))))))
                     .drop(dataFrame.col(primaryKeys.get(0)))
                     .drop(dataFrame.col(primaryKeys.get(1)))
-                    .withColumn("reject_reason",lit("primary key violation"));
+                    .withColumn("reject_reason", lit("primary key violation"));
         }
         System.out.println("invalidDataPrimaryKeyCheck done");
         invalidData.show();
@@ -105,22 +106,22 @@ public class Transform {
     }
 
     public Dataset<Row> validDataForeignKeyCheck(Dataset<Row> dataFrame) {
-        CommonData commonData = new CommonData();
-        int foreignKeyCount = commonData.tableInfo(name).getForeignKeys().size();
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataForeignKeyCheck");
+        TableObject tableObject = new TableObject(name);
+        int foreignKeyCount = tableObject.getForeignKeys().size()/2;
 
         Dataset<Row> validData;
-        System.out.println("foreignKeyCount " + commonData.tableInfo(name).getPrimaryKeys());
-        if (foreignKeyCount >= 1){
-            System.out.println("inside validDataForeignKeyCheck loop");
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "foreignKeyCount: " + foreignKeyCount);
+        if (foreignKeyCount >= 1) {
             Column[] foreignKeyColumnTable1 = new Column[foreignKeyCount];
             Column[] foreignKeyColumnTable2 = new Column[foreignKeyCount];
-            ArrayList<String> foreignKeys = commonData.tableInfo(name).getForeignKeys();
+            ArrayList<String> foreignKeys = tableObject.getForeignKeys();
             String[] foreignKeyTable = new String[foreignKeyCount];
 
             for (int j = 0; j < foreignKeyCount; j++) {
-                foreignKeyColumnTable1[j] = col(foreignKeys.get(2*j));
-                foreignKeyColumnTable2[j] = col(foreignKeys.get(2*j + 1));
-                foreignKeyTable[j] = commonData.tableInfo(name).getForeignKeyTable().get(j);
+                foreignKeyColumnTable1[j] = col(foreignKeys.get(2 * j));
+                foreignKeyColumnTable2[j] = col(foreignKeys.get(2 * j + 1));
+                foreignKeyTable[j] = tableObject.getForeignKeyTable().get(j);
             }
 
             Dataset<Row> newDataFrameKeys = dataFrame
@@ -160,30 +161,32 @@ public class Transform {
                         .drop(dataFrame.col(foreignKeys.get(2)));
             }
 
-            System.out.println("validDataForeignKeyCheck done");
+            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataForeignKeyCheck done");
             validData.show();
             return validData;
-        }
-        else {
-            return(dataFrame);
+        } else {
+            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataForeignKeyCheck skipped");
+            return (dataFrame);
         }
     }
+
     public Dataset<Row> invalidDataForeinKeyCheck(Dataset<Row> dataFrame) {
-        CommonData commonData = new CommonData();
-        int foreignKeyCount = commonData.tableInfo(name).getForeignKeys().size();
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck");
+        TableObject tableObject = new TableObject(name);
+        int foreignKeyCount = tableObject.getForeignKeys().size()/2;
 
-        Dataset<Row> invalidData = null;
+        Dataset<Row> invalidData;
 
-        if (foreignKeyCount > 0){
+        if (foreignKeyCount > 0) {
             Column[] foreignKeyColumnTable1 = new Column[foreignKeyCount];
             Column[] foreignKeyColumnTable2 = new Column[foreignKeyCount];
-            ArrayList<String> foreignKeys = commonData.tableInfo(name).getForeignKeys();
+            ArrayList<String> foreignKeys = tableObject.getForeignKeys();
             String[] foreignKeyTable = new String[foreignKeyCount];
 
             for (int j = 0; j < foreignKeyCount; j++) {
-                foreignKeyColumnTable1[j] = col(foreignKeys.get(2*j));
-                foreignKeyColumnTable2[j] = col(foreignKeys.get(2*j + 1));
-                foreignKeyTable[j] = commonData.tableInfo(name).getForeignKeyTable().get(j);
+                foreignKeyColumnTable1[j] = col(foreignKeys.get(2 * j));
+                foreignKeyColumnTable2[j] = col(foreignKeys.get(2 * j + 1));
+                foreignKeyTable[j] = tableObject.getForeignKeyTable().get(j);
             }
 
             Dataset<Row> newDataFrameKeys = dataFrame
@@ -200,7 +203,7 @@ public class Transform {
                         .intersect(dataframeFromDB)
                         .join(dataFrame, dataFrame.col(foreignKeys.get(0)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(0))))
                         .drop(dataFrame.col(foreignKeys.get(0)))
-                        .withColumn("reject_reason",lit("foreign key violation"));
+                        .withColumn("reject_reason", lit("foreign key violation"));
             } else {
 
                 Dataset<Row> dataframeFromDB1 = spark
@@ -222,12 +225,16 @@ public class Transform {
                                 .$amp$amp(dataFrame.col(foreignKeys.get(2)).$eq$eq$eq(newDataFrameKeys.col(foreignKeys.get(2))))))
                         .drop(dataFrame.col(foreignKeys.get(0)))
                         .drop(dataFrame.col(foreignKeys.get(2)))
-                        .withColumn("reject_reason",lit("foreign key violation"));
+                        .withColumn("reject_reason", lit("foreign key violation"));
             }
 
-            System.out.println("invalidDataForeinKeyCheck done");
+            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck done");
             invalidData.show();
+            return invalidData;
         }
-        return invalidData;
+        else{
+            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck skipped");
+            return dataFrame;
+        }
     }
 }

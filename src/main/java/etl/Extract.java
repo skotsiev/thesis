@@ -1,4 +1,4 @@
-package etl.functions;
+package etl;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -26,8 +26,8 @@ public class Extract {
         final String rootPath = "/home/soslan/Desktop/data/";
         final String path = rootPath + sizeFactor + "/" + name + ".tbl";
 
-        System.out.println("Import data from " + name + " csv");
-        System.out.println("Start reading data");
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Import data from " + name + ".csv");
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Start reading data");
         long start = System.currentTimeMillis();
         Dataset<Row> dataFrame = spark.read()
                 .option("header", false)
@@ -38,11 +38,11 @@ public class Extract {
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
         if (elapsedTime < 1000){
-            System.out.println("Elapsed time to read: " + elapsedTime + " millis");
+            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read" + dataFrame.count() + " lines: " + elapsedTime + " millis");
         }
             else {
             long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
-            System.out.println("Elapsed time to read: " + elapsedTimeSeconds + " seconds");
+            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read: " + dataFrame.count() + " lines: " + elapsedTimeSeconds + " seconds");
         }
             return dataFrame;
     }

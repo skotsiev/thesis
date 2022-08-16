@@ -1,7 +1,7 @@
-package etl.pipeline;
+package pipelines;
 
-import etl.functions.Extract;
-import etl.functions.Load;
+import etl.Extract;
+import etl.Load;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;

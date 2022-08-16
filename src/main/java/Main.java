@@ -1,5 +1,5 @@
-import etl.pipeline.InitialDataImport;
-import etl.pipeline.UpdateTables;
+import pipelines.InitialDataImport;
+import pipelines.UpdateTables;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
 import spark.Q01;
@@ -25,7 +25,7 @@ public class Main {
         spark.sparkContext().setLogLevel("ERROR");
         String execType = args[0].toLowerCase();
         String query = args[1].toLowerCase();
-        System.out.println("Executing with args: " + execType + ", " + query);
+        System.out.println("[" + Main.class.getSimpleName() + "]\t\t\t" + "Executing with args: " + execType + ", " + query);
 
         if (execType.equals("extract")){
 
@@ -55,7 +55,7 @@ public class Main {
             Q01.executeStream(spark);
         }
         else{
-            System.out.println("invalid args");
+            System.out.println("[" + Main.class.getSimpleName() + "]\t" + "Invalid args");
         }
 //        Thread.sleep(86400000);
         spark.stop();
