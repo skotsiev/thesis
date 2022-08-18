@@ -1,10 +1,6 @@
-import pipelines.DataAnalyticsBatch;
-import pipelines.InitialDataImport;
-import pipelines.UpdateTables;
+import pipelines.*;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import spark.deprecated.Q01;
-import spark.deprecated.Q03;
 import spark.common.Initializer;
 import spark.stream.NativeQueriesStream;
 
@@ -27,36 +23,50 @@ public class Main {
         String query = args[1].toLowerCase();
         System.out.println("[" + Main.class.getSimpleName() + "]\t\t\t" + "Executing with args: " + execType + ", " + query);
 
-        if (execType.equals("extract")){
+        switch (execType) {
+            case "extract": {
 
-            InitialDataImport pipeline = new InitialDataImport(spark, query, "0.1GB");
-            pipeline.executePipeline();
-        }
-        else if (execType.equals("update")){
+                InitialDataImport pipeline = new InitialDataImport(spark, query, "0.1GB");
+                pipeline.executePipeline();
+                break;
+            }
+            case "streamupdate": {
 
-            UpdateTables pipeline = new UpdateTables(spark, query, "0.1GB");
-            pipeline.executePipeline();
-        }
-        else if (execType.equals("nativebatch")){
-            Initializer.init(spark);
-            DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark);
-            pipeline.executePipeline(query);
-        }
-        else if (execType.equals("nativestream")) {
-            Initializer.init(spark);
-            NativeQueriesStream.execute(spark, query + "s");
-        }
-        else if (execType.equals("batch") && query.equals("q03")){
-                Q03.executeBatch(spark);
-        }
-        else if (execType.equals("stream") && query.equals("q03")){
-            Q03.executeStream(spark);
-        }
-        else if (execType.equals("stream") && query.equals("q01")){
-            Q01.executeStream(spark);
-        }
-        else{
-            System.out.println("[" + Main.class.getSimpleName() + "]\t" + "Invalid args");
+                StreamingUpdate pipeline = new StreamingUpdate(spark, query);
+                pipeline.executePipeline();
+                break;
+            }
+            case "delta": {
+
+                InitialDataImportDelta pipeline = new InitialDataImportDelta(spark, query, "0.1GB");
+                pipeline.executePipeline();
+                break;
+            }
+            case "update": {
+
+                UpdateTables pipeline = new UpdateTables(spark, query, "0.1GB");
+                pipeline.executePipeline();
+                break;
+            }
+            case "nativebatchdelta": {
+                Initializer.initDelta(spark);
+                DataAnalyticsBatchDelta pipeline = new DataAnalyticsBatchDelta(spark);
+                pipeline.executePipeline(query);
+                break;
+            }
+            case "nativebatch": {
+                Initializer.initJdbc(spark);
+                DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark);
+                pipeline.executePipeline(query);
+                break;
+            }
+            case "nativestream":
+                Initializer.initJdbc(spark);
+                NativeQueriesStream.execute(spark, query + "s");
+                break;
+            default:
+                System.out.println("[" + Main.class.getSimpleName() + "]\t" + "Invalid args");
+                break;
         }
 //        Thread.sleep(86400000);
         spark.stop();

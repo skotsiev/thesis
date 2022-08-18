@@ -15,7 +15,8 @@ public class Initializer {
         connectionProperties.put("password", "root");
         return connectionProperties;
     }
-    static public void init(SparkSession spark){
+    static public void initJdbc(SparkSession spark){
+        System.out.print("[" + Initializer.class.getSimpleName() + "]\t\t\t" + "Initialization start...");
         final String lineitemFile = "/home/soslan/Desktop/data/0.1GB/lineitem*.tbl";
         final String ordersFile = "/home/soslan/Desktop/data/0.1GB/orders*.tbl";
 
@@ -54,5 +55,29 @@ public class Initializer {
 
         lineItemStream.createOrReplaceTempView("S_LINEITEM");
         ordersStream.createOrReplaceTempView("S_ORDERS");
+        System.out.println("Done");
     }
+
+    static public void initDelta(SparkSession spark){
+        System.out.print("[" + Initializer.class.getSimpleName() + "]\t\t\t" + "Initialization start...");
+        Dataset<Row> customerTable = spark.read().format("delta").load("/tmp/delta-customer");
+        Dataset<Row> lineItemTable = spark.read().format("delta").load("/tmp/delta-lineitem");
+        Dataset<Row> nationTable = spark.read().format("delta").load("/tmp/delta-nation");
+        Dataset<Row> ordersTable = spark.read().format("delta").load("/tmp/delta-orders");
+        Dataset<Row> partTable = spark.read().format("delta").load("/tmp/delta-part");
+        Dataset<Row> partSuppTable = spark.read().format("delta").load("/tmp/delta-partsupp");
+        Dataset<Row> regionTable = spark.read().format("delta").load("/tmp/delta-region");
+        Dataset<Row> supplierTable = spark.read().format("delta").load("/tmp/delta-supplier");
+
+        customerTable.createOrReplaceTempView("CUSTOMER");
+        lineItemTable.createOrReplaceTempView("LINEITEM");
+        nationTable.createOrReplaceTempView("NATION");
+        ordersTable.createOrReplaceTempView("ORDERS");
+        partTable.createOrReplaceTempView("PART");
+        partSuppTable.createOrReplaceTempView("PARTSUPP");
+        regionTable.createOrReplaceTempView("REGION");
+        supplierTable.createOrReplaceTempView("SUPPLIER");
+        System.out.println("Done");
+    }
+
 }
