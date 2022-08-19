@@ -5,16 +5,15 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import pipelines.common.Initializer;
 
 import java.util.ArrayList;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.lit;
 
-public class Transform {
+public class TransformDelta {
 
-    public Transform(SparkSession spark, String name) {
+    public TransformDelta(SparkSession spark, String name) {
         this.spark = spark;
         this.name = name;
     }
@@ -22,8 +21,10 @@ public class Transform {
     private final SparkSession spark;
     private final String name;
 
+
     public Dataset<Row> validDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataPrimaryKeyCheck");
+
+        System.out.println("[" + getClass().getSimpleName() + "]\t" + "validDataPrimaryKeyCheck");
         TableObject tableObject = new TableObject(name);
         int primaryKeyCount = tableObject.getPrimaryKeys().size();
 
@@ -34,9 +35,8 @@ public class Transform {
             primaryKeyColumn[j] = col(primaryKeys.get(j));
         }
 
-        Dataset<Row> dataframeFromDB = spark.
-                read()
-                .jdbc("jdbc:mysql://localhost:3306", "warehouse." + name, Initializer.connectionProperties())
+        Dataset<Row> dataframeFromDB = spark.read().format("delta")
+                .load("/tmp/delta-" + name)
                 .select(primaryKeyColumn);
 
         Dataset<Row> newDataFrameKeys = dataFrame
@@ -44,7 +44,7 @@ public class Transform {
 
         Dataset<Row> validData;
 
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "primaryKeyCount: " + primaryKeyCount);
+        System.out.println("[" + getClass().getSimpleName() + "]\t" + "primaryKeyCount: " + primaryKeyCount);
         if (primaryKeyCount == 1) {
             validData = newDataFrameKeys
                     .except(dataframeFromDB)
@@ -58,13 +58,13 @@ public class Transform {
                     .drop(dataFrame.col(primaryKeys.get(0)))
                     .drop(dataFrame.col(primaryKeys.get(1)));
         }
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataPrimaryKeyCheck done");
+        System.out.println("[" + getClass().getSimpleName() + "]\t" + "validDataPrimaryKeyCheck done");
         validData.show();
         return validData;
     }
 
     public Dataset<Row> invalidDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataPrimaryKeyCheck");
+        System.out.println("[" + getClass().getSimpleName() + "]\t" + "invalidDataPrimaryKeyCheck");
         TableObject tableObject = new TableObject(name);
         int primaryKeyCount = tableObject.getPrimaryKeys().size();
 
@@ -75,9 +75,8 @@ public class Transform {
             primaryKeyColumn[j] = col(primaryKeys.get(j));
         }
 
-        Dataset<Row> dataframeFromDB = spark.
-                read()
-                .jdbc("jdbc:mysql://localhost:3306", "warehouse." + name, Initializer.connectionProperties())
+        Dataset<Row> dataframeFromDB = spark.read().format("delta")
+                .load("/tmp/delta-" + name)
                 .select(primaryKeyColumn);
 
         Dataset<Row> newDataFrameKeys = dataFrame
@@ -107,12 +106,12 @@ public class Transform {
     }
 
     public Dataset<Row> validDataForeignKeyCheck(Dataset<Row> dataFrame) {
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataForeignKeyCheck");
+        System.out.println("[" + getClass().getSimpleName() + "]\t" + "validDataForeignKeyCheck");
         TableObject tableObject = new TableObject(name);
-        int foreignKeyCount = tableObject.getForeignKeys().size()/2;
+        int foreignKeyCount = tableObject.getForeignKeys().size() / 2;
 
         Dataset<Row> validData;
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "foreignKeyCount: " + foreignKeyCount);
+        System.out.println("[" + getClass().getSimpleName() + "]\t" + "foreignKeyCount: " + foreignKeyCount);
         if (foreignKeyCount >= 1) {
             Column[] foreignKeyColumnTable1 = new Column[foreignKeyCount];
             Column[] foreignKeyColumnTable2 = new Column[foreignKeyCount];
@@ -130,9 +129,8 @@ public class Transform {
 
             if (foreignKeyCount == 1) {
 
-                Dataset<Row> dataframeFromDB = spark
-                        .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                Dataset<Row> dataframeFromDB = spark.read().format("delta")
+                        .load("/tmp/delta-" + foreignKeyTable[0])
                         .select(foreignKeyColumnTable2);
 
                 validData = newDataFrameKeys
@@ -141,18 +139,15 @@ public class Transform {
                         .drop(dataFrame.col(foreignKeys.get(0)));
             } else {
 
-                Dataset<Row> dataframeFromDB1 = spark
-                        .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                Dataset<Row> dataframeFromDB1 = spark.read().format("delta")
+                        .load("/tmp/delta-" + foreignKeyTable[0])
                         .select(foreignKeyColumnTable2[0]);
 
-                Dataset<Row> dataframeFromDB2 = spark
-                        .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[1], Initializer.connectionProperties())
+                Dataset<Row> dataframeFromDB2 = spark.read().format("delta")
+                        .load("/tmp/delta-" + foreignKeyTable[1])
                         .select(foreignKeyColumnTable2[1]);
 
                 Dataset<Row> dataframeFromDB = dataframeFromDB1.join(dataframeFromDB2);
-
 
                 validData = newDataFrameKeys
                         .intersect(dataframeFromDB)
@@ -162,19 +157,19 @@ public class Transform {
                         .drop(dataFrame.col(foreignKeys.get(2)));
             }
 
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataForeignKeyCheck done");
+            System.out.println("[" + getClass().getSimpleName() + "]\t" + "validDataForeignKeyCheck done");
             validData.show();
             return validData;
         } else {
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataForeignKeyCheck skipped");
+            System.out.println("[" + getClass().getSimpleName() + "]\t" + "validDataForeignKeyCheck skipped");
             return (dataFrame);
         }
     }
 
     public Dataset<Row> invalidDataForeinKeyCheck(Dataset<Row> dataFrame) {
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck");
+        System.out.println("[" + getClass().getSimpleName() + "]\t" + "invalidDataForeinKeyCheck");
         TableObject tableObject = new TableObject(name);
-        int foreignKeyCount = tableObject.getForeignKeys().size()/2;
+        int foreignKeyCount = tableObject.getForeignKeys().size() / 2;
 
         Dataset<Row> invalidData;
 
@@ -195,9 +190,8 @@ public class Transform {
 
             if (foreignKeyCount == 1) {
 
-                Dataset<Row> dataframeFromDB = spark
-                        .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                Dataset<Row> dataframeFromDB = spark.read().format("delta")
+                        .load("/tmp/delta-" + foreignKeyTable[0])
                         .select(foreignKeyColumnTable2);
 
                 invalidData = newDataFrameKeys
@@ -207,18 +201,15 @@ public class Transform {
                         .withColumn("reject_reason", lit("foreign key violation"));
             } else {
 
-                Dataset<Row> dataframeFromDB1 = spark
-                        .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                Dataset<Row> dataframeFromDB1 = spark.read().format("delta")
+                        .load("/tmp/delta-" + foreignKeyTable[0])
                         .select(foreignKeyColumnTable2[0]);
 
-                Dataset<Row> dataframeFromDB2 = spark
-                        .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[1], Initializer.connectionProperties())
+                Dataset<Row> dataframeFromDB2 = spark.read().format("delta")
+                        .load("/tmp/delta-" + foreignKeyTable[1])
                         .select(foreignKeyColumnTable2[1]);
 
                 Dataset<Row> dataframeFromDB = dataframeFromDB1.join(dataframeFromDB2);
-
 
                 invalidData = newDataFrameKeys
                         .except(dataframeFromDB)
@@ -229,12 +220,11 @@ public class Transform {
                         .withColumn("reject_reason", lit("foreign key violation"));
             }
 
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck done");
+            System.out.println("[" + getClass().getSimpleName() + "]\t" + "invalidDataForeinKeyCheck done");
             invalidData.show();
             return invalidData;
-        }
-        else{
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck skipped");
+        } else {
+            System.out.println("[" + getClass().getSimpleName() + "]\t" + "invalidDataForeinKeyCheck skipped");
             return dataFrame;
         }
     }

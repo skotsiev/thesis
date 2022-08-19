@@ -1,15 +1,15 @@
-package pipelines.spark;
+package pipelines.delta;
 
-import etl.spark.ExtractSpark;
-import etl.spark.LoadSpark;
-import etl.spark.TransformSpark;
+import etl.delta.ExtractDelta;
+import etl.delta.LoadDelta;
+import etl.delta.TransformDelta;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-public class UpdateTables {
+public class UpdateTablesDelta {
 
-    public UpdateTables(SparkSession spark, String name, String sizeFactor) {
+    public UpdateTablesDelta(SparkSession spark, String name, String sizeFactor) {
         this.spark = spark;
         this.name = name;
         this.sizeFactor = sizeFactor;
@@ -21,11 +21,11 @@ public class UpdateTables {
 
     public void executePipeline(){
         System.out.println("[" + getClass().getSimpleName() + "]\t" + "executePipeline");
-        ExtractSpark extract = new ExtractSpark(spark, name, sizeFactor);
-        Dataset<Row> newData = extract.extractFromCsv();
+        ExtractDelta extract = new ExtractDelta(spark, name, sizeFactor);
+        Dataset<Row> newData = extract.extractFromCsv(true);
 
-        TransformSpark transform = new TransformSpark(spark, name);
-        LoadSpark load = new LoadSpark(name);
+        TransformDelta transform = new TransformDelta(spark, name);
+        LoadDelta load = new LoadDelta(name);
 
         Dataset<Row> validPrimaryKeyData = transform.validDataPrimaryKeyCheck(newData);
         Dataset<Row> validData = transform.validDataForeignKeyCheck(validPrimaryKeyData);
@@ -37,21 +37,21 @@ public class UpdateTables {
 
         if (invalidPrimaryKeyData.count() != 0 ){
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "invalidPrimaryKeyData");
-            load.appendToMysql(invalidPrimaryKeyData,false);
+            load.appendToDelta(invalidPrimaryKeyData,false);
         }
         else{
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "No invalidPrimaryKeyData");
         }
         if (invalidForeignKeyData.count() != 0 ){
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "invalidForeignKeyData");
-            load.appendToMysql(invalidForeignKeyData,false);
+            load.appendToDelta(invalidForeignKeyData,false);
         }
         else{
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "No invalidForeignKeyData");
         }
         if (validData.count() != 0 ){
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "validData");
-            load.appendToMysql(validData,true);
+            load.appendToDelta(validData,true);
         }
         else{
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "No validData");

@@ -2,19 +2,18 @@ package etl.spark;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import pipelines.common.Initializer;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.spark.sql.functions.current_timestamp;
 
-public class Load {
+public class LoadSpark {
 
-    public Load(String name) {
+    public LoadSpark(String name) {
         this.name = name;
     }
-    static String name;
+    String name;
 
     public void overwriteToMysql(Dataset<Row> data, String schema){
         data.show();

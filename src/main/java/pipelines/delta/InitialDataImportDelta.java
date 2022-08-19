@@ -1,7 +1,7 @@
 package pipelines.delta;
 
-import etl.delta.Extract;
-import etl.delta.Load;
+import etl.delta.ExtractDelta;
+import etl.delta.LoadDelta;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -42,11 +42,11 @@ public class InitialDataImportDelta {
     }
 
     private void extractFromCsv(String name){
-        Extract extract = new Extract(spark, name, sizeFactor);
-        Dataset<Row> data = extract.extractFromDelta();
+        ExtractDelta extract = new ExtractDelta(spark, name, sizeFactor);
+        Dataset<Row> data = extract.extractFromCsv(false);
 
         if(data.count() != 0){
-            Load load = new Load(name);
+            LoadDelta load = new LoadDelta(name);
             load.overwriteToDelta(spark, data);
         }
     }

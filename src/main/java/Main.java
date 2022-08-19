@@ -1,13 +1,14 @@
-import pipelines.*;
+import deprecated.NativeQueriesStream;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
+import pipelines.StreamingUpdate;
+import pipelines.common.Initializer;
 import pipelines.delta.DataAnalyticsBatchDelta;
 import pipelines.delta.InitialDataImportDelta;
+import pipelines.delta.UpdateTablesDelta;
 import pipelines.spark.DataAnalyticsBatch;
 import pipelines.spark.InitialDataImport;
 import pipelines.spark.UpdateTables;
-import pipelines.common.Initializer;
-import deprecated.NativeQueriesStream;
 
 import java.util.concurrent.TimeoutException;
 
@@ -22,7 +23,7 @@ public class Main {
                 .config("spark.sql.shuffle.partitions", "5")
 //                .config("spark.executor.memory", "16g")
 //                .config("spark.executor.instances", 4)
-                        .getOrCreate();
+                .getOrCreate();
         spark.sparkContext().setLogLevel("ERROR");
         String execType = args[0].toLowerCase();
         String query = args[1].toLowerCase();
@@ -44,6 +45,12 @@ public class Main {
             case "delta": {
 
                 InitialDataImportDelta pipeline = new InitialDataImportDelta(spark, query, "0.1GB");
+                pipeline.executePipeline();
+                break;
+            }
+            case "deltaappend": {
+
+                UpdateTablesDelta pipeline = new UpdateTablesDelta(spark, query, "0.1GB");
                 pipeline.executePipeline();
                 break;
             }
@@ -69,6 +76,7 @@ public class Main {
                 Initializer.initJdbc(spark);
                 NativeQueriesStream.execute(spark, query + "s");
                 break;
+
             default:
                 System.out.println("[" + Main.class.getSimpleName() + "]\t" + "Invalid args");
                 break;

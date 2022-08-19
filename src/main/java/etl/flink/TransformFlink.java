@@ -1,20 +1,20 @@
-package etl.spark;
+package etl.flink;
 
 import etl.common.TableObject;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-
 import pipelines.common.Initializer;
 
 import java.util.ArrayList;
 
-import static org.apache.spark.sql.functions.*;
+import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.lit;
 
-public class Transform {
+public class TransformFlink {
 
-    public Transform(SparkSession spark, String name) {
+    public TransformFlink(SparkSession spark, String name) {
         this.spark = spark;
         this.name = name;
     }

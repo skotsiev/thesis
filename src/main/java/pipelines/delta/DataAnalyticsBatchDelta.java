@@ -1,6 +1,6 @@
 package pipelines.delta;
 
-import etl.delta.Load;
+import etl.delta.LoadDelta;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -80,7 +80,7 @@ public class DataAnalyticsBatchDelta {
 
         
         if(queryResult.count() != 0){
-            Load load = new Load(q);
+            LoadDelta load = new LoadDelta(q);
             load.overwriteToDelta(spark, queryResult);
         }
     }

@@ -1,6 +1,6 @@
 package pipelines.spark;
 
-import etl.spark.Load;
+import etl.spark.LoadSpark;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -75,7 +75,7 @@ public class DataAnalyticsBatch {
         }
 
         if (queryResult.count() != 0) {
-            Load load = new Load(q);
+            LoadSpark load = new LoadSpark(q);
             load.overwriteToMysql(queryResult, "data_analytics");
         }
     }

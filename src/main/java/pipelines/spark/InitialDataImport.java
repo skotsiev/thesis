@@ -1,7 +1,7 @@
 package pipelines.spark;
 
-import etl.spark.Extract;
-import etl.spark.Load;
+import etl.spark.ExtractSpark;
+import etl.spark.LoadSpark;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -42,11 +42,11 @@ public class InitialDataImport{
     }
 
     private void extractFromCsv(String name){
-        Extract extract = new Extract(spark, name, sizeFactor);
+        ExtractSpark extract = new ExtractSpark(spark, name, sizeFactor);
         Dataset<Row> data = extract.extractFromCsv();
 
         if(data.count() != 0){
-            Load load = new Load(name);
+            LoadSpark load = new LoadSpark(name);
             load.overwriteToMysql(data, "warehouse");
         }
     }
