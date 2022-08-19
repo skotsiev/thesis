@@ -1,4 +1,4 @@
-package spark.common;
+package pipelines.common;
 
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;

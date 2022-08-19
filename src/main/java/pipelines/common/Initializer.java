@@ -1,4 +1,4 @@
-package spark.common;
+package pipelines.common;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -6,7 +6,7 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.Properties;
 
-import static spark.common.Schemas.createSchema;
+import static pipelines.common.Schemas.createSchema;
 
 public class Initializer {
     static public Properties connectionProperties(){

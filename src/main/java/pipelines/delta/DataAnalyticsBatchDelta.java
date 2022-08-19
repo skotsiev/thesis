@@ -1,10 +1,10 @@
-package pipelines;
+package pipelines.delta;
 
-import etl.Load;
+import etl.delta.Load;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import spark.common.Queries;
+import pipelines.common.Queries;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;

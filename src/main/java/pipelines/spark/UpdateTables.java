@@ -1,13 +1,11 @@
-package pipelines;
+package pipelines.spark;
 
-import etl.Extract;
-import etl.Load;
-import etl.Transform;
+import etl.spark.Extract;
+import etl.spark.Load;
+import etl.spark.Transform;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-
-import static org.apache.spark.sql.functions.lit;
 
 public class UpdateTables {
 

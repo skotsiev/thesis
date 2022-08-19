@@ -1,16 +1,16 @@
-package pipelines;
+package pipelines.spark;
 
-import etl.Extract;
-import etl.Load;
+import etl.spark.Extract;
+import etl.spark.Load;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
 import java.util.ArrayList;
 
-public class InitialDataImportDelta {
+public class InitialDataImport{
 
-    public InitialDataImportDelta(SparkSession spark, String name , String sizeFactor) {
+    public InitialDataImport(SparkSession spark, String name , String sizeFactor) {
         this.spark = spark;
         this.name = name;
         this.sizeFactor = sizeFactor;
@@ -47,7 +47,7 @@ public class InitialDataImportDelta {
 
         if(data.count() != 0){
             Load load = new Load(name);
-            load.overwriteToDelta(spark, data);
+            load.overwriteToMysql(data, "warehouse");
         }
     }
 }

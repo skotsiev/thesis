@@ -1,4 +1,4 @@
-package spark.common;
+package pipelines.common;
 
 import java.util.HashMap;
 import java.util.HashSet;

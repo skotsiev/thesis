@@ -1,10 +1,10 @@
-package spark.batch;
+package deprecated;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import spark.common.Initializer;
-import spark.common.Queries;
+import pipelines.common.Initializer;
+import pipelines.common.Queries;
 
 import java.util.concurrent.TimeUnit;
 

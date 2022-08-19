@@ -1,4 +1,4 @@
-package spark.stream;
+package deprecated;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -6,7 +6,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.OutputMode;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import spark.common.Queries;
+import pipelines.common.Queries;
 
 import java.util.concurrent.TimeoutException;
 

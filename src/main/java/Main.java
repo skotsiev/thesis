@@ -1,8 +1,13 @@
 import pipelines.*;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import spark.common.Initializer;
-import spark.stream.NativeQueriesStream;
+import pipelines.delta.DataAnalyticsBatchDelta;
+import pipelines.delta.InitialDataImportDelta;
+import pipelines.spark.DataAnalyticsBatch;
+import pipelines.spark.InitialDataImport;
+import pipelines.spark.UpdateTables;
+import pipelines.common.Initializer;
+import deprecated.NativeQueriesStream;
 
 import java.util.concurrent.TimeoutException;
 

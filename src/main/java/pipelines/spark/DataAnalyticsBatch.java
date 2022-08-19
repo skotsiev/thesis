@@ -1,10 +1,10 @@
-package pipelines;
+package pipelines.spark;
 
-import etl.Load;
+import etl.spark.Load;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import spark.common.Queries;
+import pipelines.common.Queries;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -17,11 +17,11 @@ public class DataAnalyticsBatch {
 
     private final SparkSession spark;
 
-    public void executePipeline(String q){
+    public void executePipeline(String q) {
         long start = System.currentTimeMillis();
 
         System.out.println("[" + getClass().getSimpleName() + "]\t" + "executePipeline");
-        if (q.equals("all")){
+        if (q.equals("all")) {
             ArrayList<String> queries = new ArrayList<>();
             queries.add("q01");
             queries.add("q02");
@@ -45,21 +45,20 @@ public class DataAnalyticsBatch {
             queries.add("q21");
             queries.add("q22");
 
-            for(String i : queries ) {
+            for (String i : queries) {
                 executeQuery(i);
             }
             long end = System.currentTimeMillis();
             long elapsedTimeQuery = end - start;
             long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toMinutes(elapsedTimeQuery);
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total elapsed time: " + elapsedTimeSeconds + " minutes");
-        }
-        else{
+        } else {
             executeQuery(q);
         }
 
     }
 
-    private void executeQuery(String q){
+    private void executeQuery(String q) {
         System.out.println("[" + getClass().getSimpleName() + "]\t" + "executeQuery: " + q);
         String query = Queries.hashMap.get(q);
 
@@ -68,15 +67,14 @@ public class DataAnalyticsBatch {
         long endQuery = System.currentTimeMillis();
         long elapsedTimeQuery = endQuery - start;
 
-        if (elapsedTimeQuery < 1000){
+        if (elapsedTimeQuery < 1000) {
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "Elapsed time to query: " + elapsedTimeQuery + " millis");
-        }
-        else {
+        } else {
             long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTimeQuery);
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "Elapsed time to query: " + elapsedTimeSeconds + " seconds");
         }
 
-        if(queryResult.count() != 0){
+        if (queryResult.count() != 0) {
             Load load = new Load(q);
             load.overwriteToMysql(queryResult, "data_analytics");
         }

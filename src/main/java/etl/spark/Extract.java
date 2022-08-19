@@ -1,4 +1,4 @@
-package etl;
+package etl.spark;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -6,7 +6,7 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.concurrent.TimeUnit;
 
-import static spark.common.Schemas.createSchema;
+import static pipelines.common.Schemas.createSchema;
 
 public class Extract {
 
@@ -45,28 +45,5 @@ public class Extract {
             System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read: " + dataFrame.count() + " lines: " + elapsedTimeSeconds + " seconds");
         }
             return dataFrame;
-    }
-
-    public Dataset<Row> extractFromDelta(){
-
-
-        final String rootPath = "/tmp/delta-";
-        final String path = rootPath + name;
-
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Import data from delta-" + name + ".csv");
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Start reading data");
-        long start = System.currentTimeMillis();
-        Dataset<Row> df = spark.read().format("delta")
-                .load(path);
-        long end = System.currentTimeMillis();
-        long elapsedTime = end - start;
-        if (elapsedTime < 1000){
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read" + df.count() + " lines: " + elapsedTime + " millis");
-        }
-        else {
-            long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read: " + df.count() + " lines: " + elapsedTimeSeconds + " seconds");
-        }
-        return df;
     }
 }

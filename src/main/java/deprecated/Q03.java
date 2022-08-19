@@ -1,4 +1,4 @@
-package spark.deprecated;
+package deprecated;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -6,12 +6,12 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.OutputMode;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import spark.common.Initializer;
+import pipelines.common.Initializer;
 
 import java.util.concurrent.TimeoutException;
 
 import static org.apache.spark.sql.functions.*;
-import static spark.common.Schemas.createSchema;
+import static pipelines.common.Schemas.createSchema;
 
 public class Q03 {
     static public void executeBatch(SparkSession spark) {
