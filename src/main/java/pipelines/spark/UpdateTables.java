@@ -22,7 +22,7 @@ public class UpdateTables {
     public void executePipeline(){
         System.out.println("[" + getClass().getSimpleName() + "]\t" + "executePipeline");
         ExtractSpark extract = new ExtractSpark(spark, name, sizeFactor);
-        Dataset<Row> newData = extract.extractFromCsv();
+        Dataset<Row> newData = extract.extractFromCsv(true);
 
         TransformSpark transform = new TransformSpark(spark, name);
         LoadSpark load = new LoadSpark(name);

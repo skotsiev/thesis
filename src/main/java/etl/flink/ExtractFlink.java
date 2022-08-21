@@ -6,6 +6,8 @@ import org.apache.spark.sql.Row;
 
 import java.util.concurrent.TimeUnit;
 
+import static etl.common.Constants.ROOT_CSV_PATH;
+
 public class ExtractFlink {
 
     public ExtractFlink(String name, String sizeFactor) {
@@ -19,7 +21,7 @@ public class ExtractFlink {
 
 
     public Dataset<Row> extractFromCsv(){
-        final String rootPath = "/home/soslan/Desktop/data/";
+        final String rootPath = ROOT_CSV_PATH;
         final String path = rootPath + sizeFactor + "/" + name + ".tbl";
 
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Import data from " + name + ".csv");

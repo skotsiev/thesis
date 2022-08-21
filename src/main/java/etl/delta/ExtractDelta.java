@@ -6,6 +6,7 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.concurrent.TimeUnit;
 
+import static etl.common.Constants.ROOT_CSV_PATH;
 import static pipelines.common.Schemas.createSchema;
 
 public class ExtractDelta {
@@ -46,7 +47,7 @@ public class ExtractDelta {
     }
 
     public Dataset<Row> extractFromCsv(Boolean updateFlag){
-        final String rootPath = "/home/soslan/Desktop/data/";
+        final String rootPath = ROOT_CSV_PATH;
         final String path;
         if (updateFlag) path = rootPath + sizeFactor + "/update/" + name + ".tbl";
         else path = rootPath + sizeFactor + "/original/" + name + ".tbl";

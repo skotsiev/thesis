@@ -9,6 +9,7 @@ import pipelines.common.Initializer;
 
 import java.util.ArrayList;
 
+import static etl.common.Constants.MYSQL_URL;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.lit;
 
@@ -36,7 +37,7 @@ public class TransformFlink {
 
         Dataset<Row> dataframeFromDB = spark.
                 read()
-                .jdbc("jdbc:mysql://localhost:3306", "warehouse." + name, Initializer.connectionProperties())
+                .jdbc(MYSQL_URL, "warehouse." + name, Initializer.connectionProperties())
                 .select(primaryKeyColumn);
 
         Dataset<Row> newDataFrameKeys = dataFrame
@@ -77,7 +78,7 @@ public class TransformFlink {
 
         Dataset<Row> dataframeFromDB = spark.
                 read()
-                .jdbc("jdbc:mysql://localhost:3306", "warehouse." + name, Initializer.connectionProperties())
+                .jdbc(MYSQL_URL, "warehouse." + name, Initializer.connectionProperties())
                 .select(primaryKeyColumn);
 
         Dataset<Row> newDataFrameKeys = dataFrame
@@ -132,7 +133,7 @@ public class TransformFlink {
 
                 Dataset<Row> dataframeFromDB = spark
                         .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
                         .select(foreignKeyColumnTable2);
 
                 validData = newDataFrameKeys
@@ -143,12 +144,12 @@ public class TransformFlink {
 
                 Dataset<Row> dataframeFromDB1 = spark
                         .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
                         .select(foreignKeyColumnTable2[0]);
 
                 Dataset<Row> dataframeFromDB2 = spark
                         .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[1], Initializer.connectionProperties())
+                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[1], Initializer.connectionProperties())
                         .select(foreignKeyColumnTable2[1]);
 
                 Dataset<Row> dataframeFromDB = dataframeFromDB1.join(dataframeFromDB2);
@@ -197,7 +198,7 @@ public class TransformFlink {
 
                 Dataset<Row> dataframeFromDB = spark
                         .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
                         .select(foreignKeyColumnTable2);
 
                 invalidData = newDataFrameKeys
@@ -209,12 +210,12 @@ public class TransformFlink {
 
                 Dataset<Row> dataframeFromDB1 = spark
                         .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
+                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[0], Initializer.connectionProperties())
                         .select(foreignKeyColumnTable2[0]);
 
                 Dataset<Row> dataframeFromDB2 = spark
                         .read()
-                        .jdbc("jdbc:mysql://localhost:3306", "warehouse." + foreignKeyTable[1], Initializer.connectionProperties())
+                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[1], Initializer.connectionProperties())
                         .select(foreignKeyColumnTable2[1]);
 
                 Dataset<Row> dataframeFromDB = dataframeFromDB1.join(dataframeFromDB2);

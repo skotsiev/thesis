@@ -6,6 +6,7 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.concurrent.TimeUnit;
 
+import static etl.common.Constants.ROOT_CSV_PATH;
 import static pipelines.common.Schemas.createSchema;
 
 public class ExtractSpark {
@@ -22,9 +23,11 @@ public class ExtractSpark {
 
 
 
-    public Dataset<Row> extractFromCsv(){
-        final String rootPath = "/home/soslan/Desktop/data/";
-        final String path = rootPath + sizeFactor + "/" + name + ".tbl";
+    public Dataset<Row> extractFromCsv(Boolean updateFlag){
+        final String rootPath = ROOT_CSV_PATH;
+        final String path;
+        if (updateFlag) path = rootPath + sizeFactor + "/update/" + name + ".tbl";
+        else path = rootPath + sizeFactor + "/original/" + name + ".tbl";
 
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Import data from " + name + ".csv");
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Start reading data");

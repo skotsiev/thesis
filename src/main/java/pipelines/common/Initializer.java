@@ -6,6 +6,7 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.Properties;
 
+import static etl.common.Constants.MYSQL_URL;
 import static pipelines.common.Schemas.createSchema;
 
 public class Initializer {
@@ -35,14 +36,14 @@ public class Initializer {
                 .schema(createSchema("orders"))
                 .csv(ordersFile);
 
-        Dataset<Row> customerTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "warehouse.customer", Initializer.connectionProperties());
-        Dataset<Row> lineItemTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "warehouse.lineitem", Initializer.connectionProperties());
-        Dataset<Row> nationTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "warehouse.nation", Initializer.connectionProperties());
-        Dataset<Row> ordersTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "warehouse.orders", Initializer.connectionProperties());
-        Dataset<Row> partTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "warehouse.part", Initializer.connectionProperties());
-        Dataset<Row> partSuppTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "warehouse.partsupp", Initializer.connectionProperties());
-        Dataset<Row> regionTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "warehouse.region", Initializer.connectionProperties());
-        Dataset<Row> supplierTable = spark.read().jdbc("jdbc:mysql://localhost:3306", "warehouse.supplier", Initializer.connectionProperties());
+        Dataset<Row> customerTable = spark.read().jdbc(MYSQL_URL, "warehouse.customer", Initializer.connectionProperties());
+        Dataset<Row> lineItemTable = spark.read().jdbc(MYSQL_URL, "warehouse.lineitem", Initializer.connectionProperties());
+        Dataset<Row> nationTable = spark.read().jdbc(MYSQL_URL, "warehouse.nation", Initializer.connectionProperties());
+        Dataset<Row> ordersTable = spark.read().jdbc(MYSQL_URL, "warehouse.orders", Initializer.connectionProperties());
+        Dataset<Row> partTable = spark.read().jdbc(MYSQL_URL, "warehouse.part", Initializer.connectionProperties());
+        Dataset<Row> partSuppTable = spark.read().jdbc(MYSQL_URL, "warehouse.partsupp", Initializer.connectionProperties());
+        Dataset<Row> regionTable = spark.read().jdbc(MYSQL_URL, "warehouse.region", Initializer.connectionProperties());
+        Dataset<Row> supplierTable = spark.read().jdbc(MYSQL_URL, "warehouse.supplier", Initializer.connectionProperties());
 
         customerTable.createOrReplaceTempView("CUSTOMER");
         lineItemTable.createOrReplaceTempView("LINEITEM");

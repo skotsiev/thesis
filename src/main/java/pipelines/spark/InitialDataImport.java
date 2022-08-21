@@ -8,6 +8,8 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.ArrayList;
 
+import static etl.common.Constants.tableList;
+
 public class InitialDataImport{
 
     public InitialDataImport(SparkSession spark, String name , String sizeFactor) {
@@ -22,17 +24,9 @@ public class InitialDataImport{
 
     public void executePipeline(){
         if (name.equals("all")){
-            ArrayList<String> tableNames = new ArrayList<>();
-            tableNames.add("customer");
-            tableNames.add("lineitem");
-            tableNames.add("nation");
-            tableNames.add("orders");
-            tableNames.add("part");
-            tableNames.add("partsupp");
-            tableNames.add("region");
-            tableNames.add("supplier");
+            ArrayList<String> tableList = tableList();
 
-            for(String i : tableNames ) {
+            for(String i : tableList ) {
                 extractFromCsv(i);
             }
         }
@@ -43,7 +37,7 @@ public class InitialDataImport{
 
     private void extractFromCsv(String name){
         ExtractSpark extract = new ExtractSpark(spark, name, sizeFactor);
-        Dataset<Row> data = extract.extractFromCsv();
+        Dataset<Row> data = extract.extractFromCsv(false);
 
         if(data.count() != 0){
             LoadSpark load = new LoadSpark(name);

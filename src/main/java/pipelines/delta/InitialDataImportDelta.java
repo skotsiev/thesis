@@ -8,6 +8,8 @@ import org.apache.spark.sql.SparkSession;
 
 import java.util.ArrayList;
 
+import static etl.common.Constants.tableList;
+
 public class InitialDataImportDelta {
 
     public InitialDataImportDelta(SparkSession spark, String name , String sizeFactor) {
@@ -22,17 +24,9 @@ public class InitialDataImportDelta {
 
     public void executePipeline(){
         if (name.equals("all")){
-            ArrayList<String> tableNames = new ArrayList<>();
-            tableNames.add("customer");
-            tableNames.add("lineitem");
-            tableNames.add("nation");
-            tableNames.add("orders");
-            tableNames.add("part");
-            tableNames.add("partsupp");
-            tableNames.add("region");
-            tableNames.add("supplier");
+            ArrayList<String> tableList = tableList();
 
-            for(String i : tableNames ) {
+            for(String i : tableList ) {
                 extractFromCsv(i);
             }
         }
