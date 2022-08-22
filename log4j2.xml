@@ -1,0 +1,9 @@
+<Configuration status="debug" name="baeldung" packages="">
+    <Appenders>
+        <File name="fout" fileName="benchmark-results.log" append="true">
+            <PatternLayout>
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %m%nw</Pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+</Configuration>

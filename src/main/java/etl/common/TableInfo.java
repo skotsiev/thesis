@@ -2,9 +2,9 @@ package etl.common;
 
 import java.util.ArrayList;
 
-public class TableObject {
+public class TableInfo {
 
-    public TableObject(String name) {
+    public TableInfo(String name) {
         switch (name) {
             case "customer": {
                 this.addPrimaryKeys("c_custkey");

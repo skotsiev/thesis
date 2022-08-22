@@ -1,6 +1,6 @@
 package etl.spark;
 
-import etl.common.TableObject;
+import etl.common.TableInfo;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -25,11 +25,11 @@ public class TransformSpark {
 
     public Dataset<Row> validDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataPrimaryKeyCheck");
-        TableObject tableObject = new TableObject(name);
-        int primaryKeyCount = tableObject.getPrimaryKeys().size();
+        TableInfo tableInfo = new TableInfo(name);
+        int primaryKeyCount = tableInfo.getPrimaryKeys().size();
 
         Column[] primaryKeyColumn = new Column[primaryKeyCount];
-        ArrayList<String> primaryKeys = tableObject.getPrimaryKeys();
+        ArrayList<String> primaryKeys = tableInfo.getPrimaryKeys();
 
         for (int j = 0; j < primaryKeyCount; j++) {
             primaryKeyColumn[j] = col(primaryKeys.get(j));
@@ -66,11 +66,11 @@ public class TransformSpark {
 
     public Dataset<Row> invalidDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataPrimaryKeyCheck");
-        TableObject tableObject = new TableObject(name);
-        int primaryKeyCount = tableObject.getPrimaryKeys().size();
+        TableInfo tableInfo = new TableInfo(name);
+        int primaryKeyCount = tableInfo.getPrimaryKeys().size();
 
         Column[] primaryKeyColumn = new Column[primaryKeyCount];
-        ArrayList<String> primaryKeys = tableObject.getPrimaryKeys();
+        ArrayList<String> primaryKeys = tableInfo.getPrimaryKeys();
 
         for (int j = 0; j < primaryKeyCount; j++) {
             primaryKeyColumn[j] = col(primaryKeys.get(j));
@@ -109,21 +109,21 @@ public class TransformSpark {
 
     public Dataset<Row> validDataForeignKeyCheck(Dataset<Row> dataFrame) {
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataForeignKeyCheck");
-        TableObject tableObject = new TableObject(name);
-        int foreignKeyCount = tableObject.getForeignKeys().size()/2;
+        TableInfo tableInfo = new TableInfo(name);
+        int foreignKeyCount = tableInfo.getForeignKeys().size()/2;
 
         Dataset<Row> validData;
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "foreignKeyCount: " + foreignKeyCount);
         if (foreignKeyCount >= 1) {
             Column[] foreignKeyColumnTable1 = new Column[foreignKeyCount];
             Column[] foreignKeyColumnTable2 = new Column[foreignKeyCount];
-            ArrayList<String> foreignKeys = tableObject.getForeignKeys();
+            ArrayList<String> foreignKeys = tableInfo.getForeignKeys();
             String[] foreignKeyTable = new String[foreignKeyCount];
 
             for (int j = 0; j < foreignKeyCount; j++) {
                 foreignKeyColumnTable1[j] = col(foreignKeys.get(2 * j));
                 foreignKeyColumnTable2[j] = col(foreignKeys.get(2 * j + 1));
-                foreignKeyTable[j] = tableObject.getForeignKeyTable().get(j);
+                foreignKeyTable[j] = tableInfo.getForeignKeyTable().get(j);
             }
 
             Dataset<Row> newDataFrameKeys = dataFrame
@@ -174,21 +174,21 @@ public class TransformSpark {
 
     public Dataset<Row> invalidDataForeinKeyCheck(Dataset<Row> dataFrame) {
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck");
-        TableObject tableObject = new TableObject(name);
-        int foreignKeyCount = tableObject.getForeignKeys().size()/2;
+        TableInfo tableInfo = new TableInfo(name);
+        int foreignKeyCount = tableInfo.getForeignKeys().size()/2;
 
         Dataset<Row> invalidData;
 
         if (foreignKeyCount > 0) {
             Column[] foreignKeyColumnTable1 = new Column[foreignKeyCount];
             Column[] foreignKeyColumnTable2 = new Column[foreignKeyCount];
-            ArrayList<String> foreignKeys = tableObject.getForeignKeys();
+            ArrayList<String> foreignKeys = tableInfo.getForeignKeys();
             String[] foreignKeyTable = new String[foreignKeyCount];
 
             for (int j = 0; j < foreignKeyCount; j++) {
                 foreignKeyColumnTable1[j] = col(foreignKeys.get(2 * j));
                 foreignKeyColumnTable2[j] = col(foreignKeys.get(2 * j + 1));
-                foreignKeyTable[j] = tableObject.getForeignKeyTable().get(j);
+                foreignKeyTable[j] = tableInfo.getForeignKeyTable().get(j);
             }
 
             Dataset<Row> newDataFrameKeys = dataFrame

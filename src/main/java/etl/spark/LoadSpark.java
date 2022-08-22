@@ -32,6 +32,7 @@ public class LoadSpark {
             long elapsedTime = end - start;
             long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
             System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "Elapsed time to write: = " + elapsedTimeSeconds + " sec");
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
