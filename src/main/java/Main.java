@@ -3,6 +3,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
 import pipelines.StreamingUpdate;
 import pipelines.common.Initializer;
+import pipelines.delta.ContinuousUpdate;
 import pipelines.delta.DataAnalyticsBatchDelta;
 import pipelines.delta.InitialDataImportDelta;
 import pipelines.delta.UpdateTablesDelta;
@@ -39,6 +40,12 @@ public class Main {
             case "streamupdate": {
 
                 StreamingUpdate pipeline = new StreamingUpdate(spark, query);
+                pipeline.executePipeline();
+                break;
+            }
+            case "deltastream": {
+
+                ContinuousUpdate pipeline = new ContinuousUpdate(spark, query);
                 pipeline.executePipeline();
                 break;
             }
