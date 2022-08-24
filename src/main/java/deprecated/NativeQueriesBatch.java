@@ -9,6 +9,7 @@ import pipelines.common.Queries;
 import java.util.concurrent.TimeUnit;
 
 import static etl.common.Constants.MYSQL_URL;
+import static etl.common.Constants.connectionProperties;
 
 public class NativeQueriesBatch {
     static public void execute(SparkSession spark, String query){
@@ -23,7 +24,7 @@ public class NativeQueriesBatch {
         q.write()
                 .option("drop", "true")
                 .mode("overwrite")
-                .jdbc(MYSQL_URL, "data_analytics." + query, Initializer.connectionProperties());
+                .jdbc(MYSQL_URL, "data_analytics." + query, connectionProperties());
         long end = System.currentTimeMillis();
         long elapsedTimeQuery = endQuery - start;
         long elapsedTimeWrite = end - startWrite;

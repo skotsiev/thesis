@@ -2,11 +2,11 @@ package etl.flink;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import pipelines.common.Initializer;
 
 import java.util.concurrent.TimeUnit;
 
 import static etl.common.Constants.MYSQL_URL;
+import static etl.common.Constants.connectionProperties;
 import static org.apache.spark.sql.functions.current_timestamp;
 
 public class LoadFlink {
@@ -27,7 +27,7 @@ public class LoadFlink {
                     .write()
                     .option("drop", "true")
                     .mode("overwrite")
-                    .jdbc(MYSQL_URL, schema+ "." + name, Initializer.connectionProperties());
+                    .jdbc(MYSQL_URL, schema+ "." + name, connectionProperties());
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
             long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
@@ -51,7 +51,7 @@ public class LoadFlink {
                 .withColumn("register_date", current_timestamp())
                 .write()
                 .mode("Append")
-                .jdbc(MYSQL_URL, table, Initializer.connectionProperties());
+                .jdbc(MYSQL_URL, table, connectionProperties());
 
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;

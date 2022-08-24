@@ -6,19 +6,19 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.OutputMode;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import pipelines.common.Initializer;
 
 import java.util.concurrent.TimeoutException;
 
 import static etl.common.Constants.MYSQL_URL;
+import static etl.common.Constants.connectionProperties;
 import static org.apache.spark.sql.functions.*;
-import static pipelines.common.Schemas.createSchema;
+import static etl.common.Schemas.createSchema;
 
 public class Q03 {
     static public void executeBatch(SparkSession spark) {
-        Dataset<Row> customerDF = spark.read().jdbc(MYSQL_URL, "tpch.CUSTOMER", Initializer.connectionProperties());
-        Dataset<Row> lineItemDF = spark.read().jdbc(MYSQL_URL, "tpch.LINEITEM", Initializer.connectionProperties());
-        Dataset<Row> ordersDF = spark.read().jdbc(MYSQL_URL, "tpch.ORDERS", Initializer.connectionProperties());
+        Dataset<Row> customerDF = spark.read().jdbc(MYSQL_URL, "tpch.CUSTOMER", connectionProperties());
+        Dataset<Row> lineItemDF = spark.read().jdbc(MYSQL_URL, "tpch.LINEITEM", connectionProperties());
+        Dataset<Row> ordersDF = spark.read().jdbc(MYSQL_URL, "tpch.ORDERS", connectionProperties());
 
         Dataset<Row> fCustomerDF = customerDF.where(col("c_mktsegment").$eq$eq$eq("AUTOMOBILE"));
         Dataset<Row> fOrdersDF = ordersDF.where(col("o_orderdate").$eq$eq$eq("1995-03-15"));
@@ -44,8 +44,8 @@ public class Q03 {
 
     static public void executeStream(SparkSession spark) throws TimeoutException, StreamingQueryException {
 
-        Dataset<Row> customerDF = spark.read().jdbc(MYSQL_URL, "tpch.CUSTOMER", Initializer.connectionProperties());
-        Dataset<Row> ordersDF = spark.read().jdbc(MYSQL_URL, "tpch.ORDERS", Initializer.connectionProperties());
+        Dataset<Row> customerDF = spark.read().jdbc(MYSQL_URL, "tpch.CUSTOMER", connectionProperties());
+        Dataset<Row> ordersDF = spark.read().jdbc(MYSQL_URL, "tpch.ORDERS", connectionProperties());
 
         final String lineitemFile = "/home/soslan/Desktop/data/0.1GB/lineitem*.tbl";
         final String ordersFile = "/home/soslan/Desktop/data/0.1GB/orders*.tbl";

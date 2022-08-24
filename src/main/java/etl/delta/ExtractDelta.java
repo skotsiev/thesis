@@ -4,10 +4,9 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import java.util.concurrent.TimeUnit;
-
 import static etl.common.Constants.ROOT_CSV_PATH;
-import static pipelines.common.Schemas.createSchema;
+import static etl.common.Schemas.createSchema;
+import static etl.common.Utils.elapsedTime;
 
 public class ExtractDelta {
 
@@ -32,18 +31,13 @@ public class ExtractDelta {
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Import data from delta-" + name);
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Start reading data");
         long start = System.currentTimeMillis();
-        Dataset<Row> df = spark.read().format("delta")
+        Dataset<Row> dataFrame = spark.read().format("delta")
                 .load(path);
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        if (elapsedTime < 1000){
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read" + df.count() + " lines: " + elapsedTime + " millis");
-        }
-        else {
-            long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read: " + df.count() + " lines: " + elapsedTimeSeconds + " seconds");
-        }
-        return df;
+        String elapsedTimeString = elapsedTime(elapsedTime);
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read" + dataFrame.count() + " lines: " + elapsedTimeString);
+        return dataFrame;
     }
 
     public Dataset<Row> extractFromCsv(Boolean updateFlag){
@@ -63,13 +57,9 @@ public class ExtractDelta {
                 .csv(path);
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        if (elapsedTime < 1000){
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read" + dataFrame.count() + " lines: " + elapsedTime + " millis");
-        }
-        else {
-            long elapsedTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTime);
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read: " + dataFrame.count() + " lines: " + elapsedTimeSeconds + " seconds");
-        }
+        String elapsedTimeString = elapsedTime(elapsedTime);
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read " + dataFrame.count() + " lines: " + elapsedTimeString);
+
         return dataFrame;
     }
 

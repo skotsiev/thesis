@@ -1,0 +1,16 @@
+<Configuration status="info" name="baeldung" packages="">
+    <Appenders>
+        <File name="FILE" fileName="logs/benchmark-results.log" append="true">
+            <PatternLayout>
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %m%n</Pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="FILE" level="info"/>
+        <Root level="info">
+            <AppenderRef ref="FILE"/>
+        </Root>
+    </Loggers>
+</Configuration>

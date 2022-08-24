@@ -10,7 +10,7 @@ import org.apache.spark.sql.streaming.StreamingQueryException;
 import java.util.concurrent.TimeoutException;
 
 import static org.apache.spark.sql.functions.*;
-import static pipelines.common.Schemas.createSchema;
+import static etl.common.Schemas.createSchema;
 
 public class Q01
 {

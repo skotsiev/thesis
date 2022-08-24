@@ -2,6 +2,8 @@ package pipelines.spark;
 
 import etl.spark.ExtractSpark;
 import etl.spark.LoadSpark;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -9,9 +11,11 @@ import org.apache.spark.sql.SparkSession;
 import java.util.ArrayList;
 
 import static etl.common.Constants.tableList;
+import static etl.common.Utils.elapsedTime;
 
 public class InitialDataImport{
 
+    final static Logger logger = LogManager.getLogger(InitialDataImport.class);
     public InitialDataImport(SparkSession spark, String name , String sizeFactor) {
         this.spark = spark;
         this.name = name;
@@ -23,19 +27,30 @@ public class InitialDataImport{
     private final String sizeFactor;
 
     public void executePipeline(){
+        logger.info("=======================[" + getClass().getSimpleName() + "]=======================");
+        logger.info("[" + getClass().getSimpleName() + "]\t" + "Starting pipeline execution");
+        long start = System.currentTimeMillis();
+
         if (name.equals("all")){
             ArrayList<String> tableList = tableList();
 
             for(String i : tableList ) {
-                extractFromCsv(i);
+                execute(i);
             }
+            long end = System.currentTimeMillis();
+            long elapsedTime = end - start;
+            String elapsedTimeString = elapsedTime(elapsedTime);
+            System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total elapsed time to read: " + elapsedTimeString);
+            logger.info("[" + getClass().getSimpleName() + "]\t" + "Total elapsed time: " + elapsedTimeString);
         }
         else{
-            extractFromCsv(name);
+            execute(name);
         }
+        logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline execution complete");
+        logger.info("=================================================================");
     }
 
-    private void extractFromCsv(String name){
+    private void execute(String name){
         ExtractSpark extract = new ExtractSpark(spark, name, sizeFactor);
         Dataset<Row> data = extract.extractFromCsv(false);
 

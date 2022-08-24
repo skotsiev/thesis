@@ -1,4 +1,4 @@
-package pipelines.common;
+package etl.common;
 
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;

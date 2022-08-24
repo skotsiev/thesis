@@ -1,12 +1,19 @@
 package etl.common;
 
 import java.util.ArrayList;
+import java.util.Properties;
 
 public class Constants {
     public static final String ROOT_CSV_PATH = "/home/soslan/Desktop/data/";
     public static final String ROOT_DELTA_PATH = "/tmp/";
     public static final String MYSQL_URL = "jdbc:mysql://localhost:3306";
 
+    static public Properties connectionProperties() {
+        final Properties connectionProperties = new Properties();
+        connectionProperties.put("user", "root");
+        connectionProperties.put("password", "root");
+        return connectionProperties;
+    }
     static public ArrayList<String> tableList() {
         final ArrayList<String> tableList = new ArrayList<>();
         tableList.add("customer");
