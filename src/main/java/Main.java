@@ -1,7 +1,8 @@
 import deprecated.NativeQueriesStream;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQueryException;
-import pipelines.StreamingUpdate;
+import pipelines.StreamingUpdateFile;
+import pipelines.StreamingUpdateSocket;
 import pipelines.common.Initializer;
 import pipelines.delta.*;
 import pipelines.spark.DataAnalyticsBatch;
@@ -20,7 +21,7 @@ public class Main {
                 .config("spark.master", "local")
                 .config("spark.sql.shuffle.partitions", "5")
 //                .config("spark.executor.memory", "16g")
-//                .config("spark.executor.instances", 4)
+                .config("spark.executor.instances", 4)
                 .getOrCreate();
         spark.sparkContext().setLogLevel("ERROR");
         String execType = args[0].toLowerCase();
@@ -36,7 +37,13 @@ public class Main {
             }
             case "streamupdate": {
 
-                StreamingUpdate pipeline = new StreamingUpdate(spark, query);
+                StreamingUpdateSocket pipeline = new StreamingUpdateSocket(spark, query);
+                pipeline.executePipeline();
+                break;
+            }
+            case "streamupdatecsv": {
+
+                StreamingUpdateFile pipeline = new StreamingUpdateFile(spark, query);
                 pipeline.executePipeline();
                 break;
             }

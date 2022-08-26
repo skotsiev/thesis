@@ -13,9 +13,9 @@ import static org.apache.spark.sql.functions.split;
 import static org.apache.spark.sql.types.DataTypes.DoubleType;
 import static org.apache.spark.sql.types.DataTypes.IntegerType;
 
-public class StreamingUpdate {
+public class StreamingUpdateSocket {
 
-    public StreamingUpdate(SparkSession spark, String name) {
+    public StreamingUpdateSocket(SparkSession spark, String name) {
         this.spark = spark;
         this.name = name;
     }
@@ -24,6 +24,7 @@ public class StreamingUpdate {
     private final String name;
 
     public void executePipeline() throws TimeoutException, StreamingQueryException {
+
         Dataset<Row> lines = spark
                 .readStream()
                 .format("socket")
