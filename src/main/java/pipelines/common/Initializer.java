@@ -16,24 +16,24 @@ import static etl.common.Schemas.createSchema;
 
 public class Initializer {
 
-    static public void initJdbc(SparkSession spark) {
+    static public void initJdbc(SparkSession spark, String sizeFactor) {
         System.out.print("[" + Initializer.class.getSimpleName() + "]\t\t\t" + "Initialization start...");
         ArrayList<String> tableList = tableList();
 
         for (String i : tableList) {
-            String tableName = "warehouse." + i;
+            String tableName = "warehouse" + sizeFactor + "." + i;
             Dataset<Row> dataFrame = spark.read().jdbc(MYSQL_URL, tableName, connectionProperties());
             dataFrame.createOrReplaceTempView(i);
         }
         System.out.println("Done");
     }
 
-    static public void initDelta(SparkSession spark) {
+    static public void initDelta(SparkSession spark, String sizeFactor) {
         System.out.print("[" + Initializer.class.getSimpleName() + "]\t\t\t" + "Initialization start...");
         ArrayList<String> tableList = tableList();
 
         for (String i : tableList) {
-            String tablePath = "/tmp/delta-" + i;
+            String tablePath = "/tmp/delta-" + i + sizeFactor;
             Dataset<Row> deltaTable = spark.read().format("delta").load(tablePath);
             deltaTable.createOrReplaceTempView(i);
         }
@@ -43,7 +43,7 @@ public class Initializer {
     static public void initStream(SparkSession spark) throws TimeoutException, StreamingQueryException {
         System.out.print("[" + Initializer.class.getSimpleName() + "]\t\t\t" + "Initialization start...");
 
-        final String lineitemFile = "/home/soslan/Desktop/data/0.1GB/stream/lineitem*.csv";
+        final String lineitemFile = "/home/soslan/Desktop/data/100MB/stream/lineitem*.csv";
         String path = "/tmp/delta-lineitem-stream";
         System.out.println("[" + Initializer.class.getSimpleName() + "]\t\t\t" + "read...");
 

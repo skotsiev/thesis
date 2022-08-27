@@ -16,14 +16,14 @@ public class Constants {
     }
     static public ArrayList<String> tableList() {
         final ArrayList<String> tableList = new ArrayList<>();
-        tableList.add("customer");
-        tableList.add("lineitem");
+        tableList.add("region");
         tableList.add("nation");
-        tableList.add("orders");
+        tableList.add("supplier");
+        tableList.add("customer");
         tableList.add("part");
         tableList.add("partsupp");
-        tableList.add("region");
-        tableList.add("supplier");
+        tableList.add("orders");
+        tableList.add("lineitem");
         return tableList;
     }
 
@@ -51,6 +51,14 @@ public class Constants {
         queriesList.add("q21");
         queriesList.add("q22");
         return queriesList;
+    }
+
+    static public ArrayList<String> sizeFactorList() {
+        final ArrayList<String> sizeFactorList = new ArrayList<>();
+        sizeFactorList.add("100MB");
+        sizeFactorList.add("1GB");
+        sizeFactorList.add("10GB");
+        return sizeFactorList;
     }
 
 }

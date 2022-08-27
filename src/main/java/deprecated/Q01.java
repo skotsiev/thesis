@@ -16,7 +16,7 @@ public class Q01
 {
     static public void executeStream(SparkSession spark) throws TimeoutException, StreamingQueryException {
 
-        final String lineitemFile = "/home/soslan/Desktop/data/0.1GB/lineitem*.tbl";
+        final String lineitemFile = "/home/soslan/Desktop/data/100MB/lineitem*.tbl";
 
         Dataset<Row> lineItemStreamDF = spark.readStream()
                 .option("header", false)

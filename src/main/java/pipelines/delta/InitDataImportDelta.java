@@ -1,22 +1,23 @@
-package pipelines.spark;
+package pipelines.delta;
 
-import etl.spark.ExtractSpark;
-import etl.spark.LoadSpark;
+import etl.delta.ExtractDelta;
+import etl.delta.LoadDelta;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import pipelines.spark.InitialDataImport;
 
 import java.util.ArrayList;
 
 import static etl.common.Constants.tableList;
 import static etl.common.Utils.elapsedTime;
 
-public class InitialDataImport{
-
+public class InitDataImportDelta {
     final static Logger logger = LogManager.getLogger(InitialDataImport.class);
-    public InitialDataImport(SparkSession spark, String name , String sizeFactor) {
+
+    public InitDataImportDelta(SparkSession spark, String name , String sizeFactor) {
         this.spark = spark;
         this.name = name;
         this.sizeFactor = sizeFactor;
@@ -27,7 +28,7 @@ public class InitialDataImport{
     private final String sizeFactor;
 
     public void executePipeline(){
-        logger.info("=======================[" + getClass().getSimpleName() + "]=======================");
+        logger.info("======================[" + getClass().getSimpleName() + "]======================");
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Starting pipeline execution");
         logger.info("-----------------------------------------------------------------");
         logger.info("[" + getClass().getSimpleName() + "]\t" + "sizeFactor " + sizeFactor);
@@ -61,12 +62,12 @@ public class InitialDataImport{
     }
 
     private void execute(String name){
-        ExtractSpark extract = new ExtractSpark(spark, name, sizeFactor);
+        ExtractDelta extract = new ExtractDelta(spark, name, sizeFactor);
         Dataset<Row> data = extract.extractFromCsv(false);
 
         if(data.count() != 0){
-            LoadSpark load = new LoadSpark(name);
-            load.overwriteToMysql(data, "warehouse"+sizeFactor);
+            LoadDelta load = new LoadDelta(name + sizeFactor);
+            load.overwriteToDelta(spark, data);
         }
     }
 }

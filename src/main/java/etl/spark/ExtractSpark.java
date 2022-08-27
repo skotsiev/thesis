@@ -43,9 +43,8 @@ public class ExtractSpark {
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
         String elapsedTimeString = elapsedTime(elapsedTime);
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read " + dataFrame.count() + " lines from " + name + ": " + elapsedTimeString);
-        logger.info("[" + getClass().getSimpleName() + "]\t" + "Elapsed time to read " + dataFrame.count() + " lines from " + name + ": " + elapsedTimeString);
-
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Read " + dataFrame.count() + " lines from " + name + ": " + elapsedTimeString);
+        logger.info("[" + getClass().getSimpleName() + "]\t" + "Read\t" + dataFrame.count() + "\tlines:" + elapsedTimeString);
         return dataFrame;
     }
 }

@@ -34,8 +34,8 @@ public class LoadSpark {
         long elapsedTime = end - start;
         String elapsedTimeString = elapsedTime(elapsedTime);
 
-        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to write " + count + " lines to " + name + ": " + elapsedTimeString);
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "Elapsed time to write " + count + " lines to " + name + ": " + elapsedTimeString);
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "Write " + count + " lines " + name + ": " + elapsedTimeString);
+        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
     }
 
     public void appendToMysql(Dataset<Row> data, Boolean flag){

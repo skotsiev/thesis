@@ -1,5 +1,8 @@
 package etl.delta;
 
+import etl.spark.ExtractSpark;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -9,6 +12,8 @@ import static etl.common.Schemas.createSchema;
 import static etl.common.Utils.elapsedTime;
 
 public class ExtractDelta {
+
+    final static Logger logger = LogManager.getLogger(ExtractSpark.class);
 
     public ExtractDelta(SparkSession spark, String name, String sizeFactor) {
         this.spark = spark;
@@ -37,6 +42,7 @@ public class ExtractDelta {
         long elapsedTime = end - start;
         String elapsedTimeString = elapsedTime(elapsedTime);
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read" + dataFrame.count() + " lines: " + elapsedTimeString);
+        logger.info("[" + getClass().getSimpleName() + "]\t" + "Read\t" + dataFrame.count() + "\tlines:" + elapsedTimeString);
         return dataFrame;
     }
 
@@ -59,7 +65,7 @@ public class ExtractDelta {
         long elapsedTime = end - start;
         String elapsedTimeString = elapsedTime(elapsedTime);
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read " + dataFrame.count() + " lines: " + elapsedTimeString);
-
+        logger.info("[" + getClass().getSimpleName() + "]\t" + "Read\t" + dataFrame.count() + "\tlines:" + elapsedTimeString);
         return dataFrame;
     }
 

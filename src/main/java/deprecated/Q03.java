@@ -47,8 +47,8 @@ public class Q03 {
         Dataset<Row> customerDF = spark.read().jdbc(MYSQL_URL, "tpch.CUSTOMER", connectionProperties());
         Dataset<Row> ordersDF = spark.read().jdbc(MYSQL_URL, "tpch.ORDERS", connectionProperties());
 
-        final String lineitemFile = "/home/soslan/Desktop/data/0.1GB/lineitem*.tbl";
-        final String ordersFile = "/home/soslan/Desktop/data/0.1GB/orders*.tbl";
+        final String lineitemFile = "/home/soslan/Desktop/data/100MB/lineitem*.tbl";
+        final String ordersFile = "/home/soslan/Desktop/data/100MB/orders*.tbl";
         Dataset<Row> fOrdersDF = ordersDF.where(col("o_orderdate").$eq$eq$eq("1995-03-15"));
 
         Dataset<Row> lineItemStreamDF = spark.readStream()

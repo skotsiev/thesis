@@ -1,6 +1,6 @@
-package pipelines.spark;
+package pipelines.delta;
 
-import etl.spark.LoadSpark;
+import etl.delta.LoadDelta;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import static etl.common.Constants.queriesList;
 import static etl.common.Utils.elapsedTime;
 
-public class DataAnalyticsBatch {
+public class DataAnalyticsDelta {
 
-    final static Logger logger = LogManager.getLogger(DataAnalyticsBatch.class);
+    final static Logger logger = LogManager.getLogger(DataAnalyticsDelta.class);
 
-    public DataAnalyticsBatch(SparkSession spark) {
+    public DataAnalyticsDelta(SparkSession spark) {
         this.spark = spark;
     }
 
@@ -27,10 +27,10 @@ public class DataAnalyticsBatch {
         logger.info("======================[" + getClass().getSimpleName() + "]======================");
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Starting pipeline execution");
         logger.info("----------------------------------------------------------------");
-        long start = System.currentTimeMillis();
         ArrayList<Dataset<Row>> resultsDataFrame = new ArrayList<>();
 
         if (q.equals("all")) {
+            long start = System.currentTimeMillis();
             ArrayList<String> queriesList = queriesList();
 
             for (String i : queriesList) {
@@ -67,8 +67,8 @@ public class DataAnalyticsBatch {
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Execution time\t"  + elapsedTimeString);
 
         if (queryResult.count() != 0) {
-            LoadSpark load = new LoadSpark(q);
-            load.overwriteToMysql(queryResult, "data_analytics");
+            LoadDelta load = new LoadDelta(q);
+            load.overwriteToDelta(spark, queryResult);
         }
         return queryResult;
     }

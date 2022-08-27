@@ -30,7 +30,7 @@ public class LoadDelta {
         long elapsedTime = end - start;
         String elapsedTimeString = elapsedTime(elapsedTime);
 
-        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to write " + count + " lines to " + name + ": " + elapsedTimeString);
+        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
         Dataset<Row> df = spark.read().format("delta")
                 .load("/tmp/delta-" + name)
                 ;

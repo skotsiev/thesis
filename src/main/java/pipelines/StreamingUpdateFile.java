@@ -25,7 +25,7 @@ public class StreamingUpdateFile {
 
     public void executePipeline() throws TimeoutException, StreamingQueryException {
 
-        final String lineitemFile = "/home/soslan/Desktop/data/0.1GB/stream/lineitem*.csv";
+        final String lineitemFile = "/home/soslan/Desktop/data/100MB/stream/lineitem*.csv";
 
         Dataset<Row> lineItemStreamDF = spark
                 .readStream()

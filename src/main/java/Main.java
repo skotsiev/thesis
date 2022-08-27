@@ -9,7 +9,10 @@ import pipelines.spark.DataAnalyticsBatch;
 import pipelines.spark.InitialDataImport;
 import pipelines.spark.UpdateTables;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
+
+import static etl.common.Constants.sizeFactorList;
 
 
 public class Main {
@@ -28,13 +31,37 @@ public class Main {
         String query = args[1].toLowerCase();
         System.out.println("[" + Main.class.getSimpleName() + "]\t\t\t" + "Executing with args: " + execType + ", " + query);
 
+        ArrayList<String> sizeFactorList = sizeFactorList();;
+
         switch (execType) {
             case "extract": {
-
-                InitialDataImport pipeline = new InitialDataImport(spark, query, "0.1GB");
-                pipeline.executePipeline();
+                for (String i : sizeFactorList) {
+                    InitialDataImport pipeline = new InitialDataImport(spark, query, i);
+                    pipeline.executePipeline();
+                }
+                for (String i : sizeFactorList) {
+                    InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, i);
+                    pipeline.executePipeline();
+                }
                 break;
             }
+            case "delta": {
+                for (String i : sizeFactorList) {
+                    InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, i);
+                    pipeline.executePipeline();
+                }
+                break;
+            }
+//            case "extract": {
+//                InitialDataImport pipeline = new InitialDataImport(spark, query, "100MB");
+//                pipeline.executePipeline();
+//                break;
+//            }
+//            case "delta": {
+//                InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, "100MB");
+//                pipeline.executePipeline();
+//                break;
+//            }
             case "streamupdate": {
 
                 StreamingUpdateSocket pipeline = new StreamingUpdateSocket(spark, query);
@@ -65,38 +92,32 @@ public class Main {
                 pipeline.executePipeline();
                 break;
             }
-            case "delta": {
-
-                InitialDataImportDelta pipeline = new InitialDataImportDelta(spark, query, "0.1GB");
-                pipeline.executePipeline();
-                break;
-            }
             case "deltaappend": {
 
-                UpdateTablesDelta pipeline = new UpdateTablesDelta(spark, query, "0.1GB");
+                UpdateTablesDelta pipeline = new UpdateTablesDelta(spark, query, "100MB");
                 pipeline.executePipeline();
                 break;
             }
             case "update": {
 
-                UpdateTables pipeline = new UpdateTables(spark, query, "0.1GB");
+                UpdateTables pipeline = new UpdateTables(spark, query, "100MB");
                 pipeline.executePipeline();
                 break;
             }
             case "nativebatchdelta": {
-                Initializer.initDelta(spark);
-                DataAnalyticsBatchDelta pipeline = new DataAnalyticsBatchDelta(spark);
+                Initializer.initDelta(spark, "100MB");
+                DataAnalyticsDelta pipeline = new DataAnalyticsDelta(spark);
                 pipeline.executePipeline(query);
                 break;
             }
             case "nativebatch": {
-                Initializer.initJdbc(spark);
+                Initializer.initJdbc(spark, "100MB");
                 DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark);
                 pipeline.executePipeline(query);
                 break;
             }
             case "nativestream":
-                Initializer.initJdbc(spark);
+                Initializer.initJdbc(spark, "100MB");
                 NativeQueriesStream.execute(spark, query + "s");
                 break;
 
