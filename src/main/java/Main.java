@@ -22,16 +22,18 @@ public class Main {
                 .builder()
                 .appName("spark-etl")
                 .config("spark.master", "local")
-                .config("spark.sql.shuffle.partitions", "5")
-//                .config("spark.executor.memory", "16g")
-                .config("spark.executor.instances", 4)
+//                .config("spark.sql.shuffle.partitions", "5")
+                .config("spark.executor.memory", "8g")
+//                .config("spark.executor.instances", 4)
+//                .config("spark.executor.cores", "2")
+//                .config("spark.task.cpus", 2)
                 .getOrCreate();
         spark.sparkContext().setLogLevel("ERROR");
         String execType = args[0].toLowerCase();
         String query = args[1].toLowerCase();
         System.out.println("[" + Main.class.getSimpleName() + "]\t\t\t" + "Executing with args: " + execType + ", " + query);
 
-        ArrayList<String> sizeFactorList = sizeFactorList();;
+        ArrayList<String> sizeFactorList = sizeFactorList();
 
         switch (execType) {
             case "extract": {
@@ -39,16 +41,32 @@ public class Main {
                     InitialDataImport pipeline = new InitialDataImport(spark, query, i);
                     pipeline.executePipeline();
                 }
-                for (String i : sizeFactorList) {
-                    InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, i);
+                for (String sizeFactor : sizeFactorList) {
+                    InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, sizeFactor);
                     pipeline.executePipeline();
                 }
                 break;
             }
-            case "delta": {
-                for (String i : sizeFactorList) {
-                    InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, i);
-                    pipeline.executePipeline();
+//            case "delta": {
+//                for (String sizeFactor : sizeFactorList) {
+//                    InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, sizeFactor);
+//                    pipeline.executePipeline();
+//                }
+//                break;
+//            }
+            case "nativebatch": {
+                for (String sizeFactor : sizeFactorList) {
+                    Initializer.initJdbc(spark, sizeFactor);
+                    DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark, sizeFactor);
+                    pipeline.executePipeline(query);
+                }
+                break;
+            }
+            case "nativebatchdelta": {
+                for (String sizeFactor : sizeFactorList) {
+                    Initializer.initDelta(spark, sizeFactor);
+                    DataAnalyticsDelta pipeline = new DataAnalyticsDelta(spark, sizeFactor);
+                    pipeline.executePipeline(query);
                 }
                 break;
             }
@@ -57,11 +75,18 @@ public class Main {
 //                pipeline.executePipeline();
 //                break;
 //            }
-//            case "delta": {
-//                InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, "100MB");
-//                pipeline.executePipeline();
+            case "delta": {
+                InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, "100MB");
+                pipeline.executePipeline();
+                break;
+            }
+//            case "nativebatch": {
+//                Initializer.initJdbc(spark, "100MB");
+//                DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark, "100MB");
+//                pipeline.executePipeline(query);
 //                break;
 //            }
+
             case "streamupdate": {
 
                 StreamingUpdateSocket pipeline = new StreamingUpdateSocket(spark, query);
@@ -70,7 +95,7 @@ public class Main {
             }
             case "streamupdatecsv": {
 
-                StreamingUpdateFile pipeline = new StreamingUpdateFile(spark, query);
+                StreamingUpdateFile pipeline = new StreamingUpdateFile(spark, query,"100MB");
                 pipeline.executePipeline();
                 break;
             }
@@ -82,7 +107,7 @@ public class Main {
             }
             case "showdelta": {
 
-                ShowDeltaTable pipeline = new ShowDeltaTable(spark, query);
+                ShowDeltaTable pipeline = new ShowDeltaTable(spark, query, "100MB");
                 pipeline.executePipeline();
                 break;
             }
@@ -102,18 +127,6 @@ public class Main {
 
                 UpdateTables pipeline = new UpdateTables(spark, query, "100MB");
                 pipeline.executePipeline();
-                break;
-            }
-            case "nativebatchdelta": {
-                Initializer.initDelta(spark, "100MB");
-                DataAnalyticsDelta pipeline = new DataAnalyticsDelta(spark);
-                pipeline.executePipeline(query);
-                break;
-            }
-            case "nativebatch": {
-                Initializer.initJdbc(spark, "100MB");
-                DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark);
-                pipeline.executePipeline(query);
                 break;
             }
             case "nativestream":

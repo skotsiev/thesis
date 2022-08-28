@@ -29,6 +29,7 @@ public class InitDataImportDelta {
 
     public void executePipeline(){
         logger.info("======================[" + getClass().getSimpleName() + "]======================");
+        logger.info("=================================================================");
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Starting pipeline execution");
         logger.info("-----------------------------------------------------------------");
         logger.info("[" + getClass().getSimpleName() + "]\t" + "sizeFactor " + sizeFactor);

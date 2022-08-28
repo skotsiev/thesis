@@ -16,7 +16,7 @@ import static etl.common.Utils.elapsedTime;
 public class InitialDataImport{
 
     final static Logger logger = LogManager.getLogger(InitialDataImport.class);
-    public InitialDataImport(SparkSession spark, String name , String sizeFactor) {
+    public InitialDataImport(SparkSession spark, String name, String sizeFactor) {
         this.spark = spark;
         this.name = name;
         this.sizeFactor = sizeFactor;
@@ -28,6 +28,7 @@ public class InitialDataImport{
 
     public void executePipeline(){
         logger.info("=======================[" + getClass().getSimpleName() + "]=======================");
+        logger.info("=================================================================");
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Starting pipeline execution");
         logger.info("-----------------------------------------------------------------");
         logger.info("[" + getClass().getSimpleName() + "]\t" + "sizeFactor " + sizeFactor);
@@ -37,14 +38,14 @@ public class InitialDataImport{
         if (name.equals("all")){
             ArrayList<String> tableList = tableList();
 
-            for(String i : tableList ) {
-                logger.info("[" + getClass().getSimpleName() + "]\t" + "Start importing " + i );
+            for(String table : tableList ) {
+                logger.info("[" + getClass().getSimpleName() + "]\t" + "Start importing " + table );
                 long startLoop = System.currentTimeMillis();
-                execute(i);
+                execute(table);
                 long endLoop = System.currentTimeMillis();
                 long elapsedTimeLoop = endLoop - startLoop;
                 String elapsedTimeString = elapsedTime(elapsedTimeLoop);
-                System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total time to import: " + i + ":" + elapsedTimeString);
+                System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total time to import: " + table + ":" + elapsedTimeString);
                 logger.info("[" + getClass().getSimpleName() + "]\t" + "Total time to import :" + elapsedTimeString);
             }
             long end = System.currentTimeMillis();

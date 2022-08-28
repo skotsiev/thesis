@@ -3,7 +3,6 @@ package deprecated;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import pipelines.common.Initializer;
 import pipelines.common.Queries;
 
 import java.util.concurrent.TimeUnit;
@@ -14,7 +13,7 @@ import static etl.common.Constants.connectionProperties;
 public class NativeQueriesBatch {
     static public void execute(SparkSession spark, String query){
         long start = System.currentTimeMillis();
-        Dataset<Row> q = spark.sql(Queries.hashMap.get(query));
+        Dataset<Row> q = spark.sql(Queries.tpchQueries.get(query));
         long endQuery = System.currentTimeMillis();
 
         q.show();

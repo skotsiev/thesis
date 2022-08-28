@@ -57,7 +57,7 @@ public class Constants {
         final ArrayList<String> sizeFactorList = new ArrayList<>();
         sizeFactorList.add("100MB");
         sizeFactorList.add("1GB");
-        sizeFactorList.add("10GB");
+        sizeFactorList.add("5GB");
         return sizeFactorList;
     }
 

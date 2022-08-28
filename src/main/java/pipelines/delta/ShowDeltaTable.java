@@ -19,21 +19,22 @@ public class ShowDeltaTable implements StreamingListener {
 
     final static Logger logger = LogManager.getLogger(ShowDeltaTable.class);
 
-    public ShowDeltaTable(SparkSession spark, String name) {
+    public ShowDeltaTable(SparkSession spark, String name, String sizeFactor) {
         this.spark = spark;
         this.name = name;
+        this.sizeFactor = sizeFactor;
     }
 
     private final SparkSession spark;
     private final String name ;
-
+    private final String sizeFactor;
     private long start, end;
 
     public void executePipeline() throws StreamingQueryException, TimeoutException {
 
         Dataset<Row> dataFrameFromDelta = spark.readStream()
                 .format("delta")
-                .load("/tmp/delta-lineitem");
+                .load("/tmp/delta-"+ name + sizeFactor);
 
         Dataset<Row> result = dataFrameFromDelta
                 .withColumn("disc_price"

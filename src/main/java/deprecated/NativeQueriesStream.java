@@ -13,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 public class NativeQueriesStream {
     static public void execute(SparkSession spark, String query) throws StreamingQueryException, TimeoutException {
 
-        String q = Queries.hashMap.get(query);
+        String q = Queries.tpchQueries.get(query);
 
         Dataset<Row> result = spark.sql(q);
 
