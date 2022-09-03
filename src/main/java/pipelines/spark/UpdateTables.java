@@ -32,14 +32,14 @@ public class UpdateTables {
         ExtractSpark extract = new ExtractSpark(spark, name, sizeFactor);
         Dataset<Row> newData = extract.extractFromCsv(true);
 
-        TransformSpark transform = new TransformSpark(spark, name);
-        LoadSpark load = new LoadSpark(name);
+        TransformSpark transform = new TransformSpark(spark, name, sizeFactor);
+        LoadSpark load = new LoadSpark(name, sizeFactor);
 
         Dataset<Row> validPrimaryKeyData = transform.validDataPrimaryKeyCheck(newData);
         Dataset<Row> validData = transform.validDataForeignKeyCheck(validPrimaryKeyData);
         Dataset<Row> invalidPrimaryKeyData = transform.invalidDataPrimaryKeyCheck(newData);
 //        Dataset<Row> invalidPrimaryKeyData = newData.except(validPrimaryKeyData).withColumn("reject_reason", lit("primary key violation"));
-        Dataset<Row> invalidForeignKeyData = transform.invalidDataForeinKeyCheck(validPrimaryKeyData);
+        Dataset<Row> invalidForeignKeyData = transform.invalidDataForeignKeyCheck(validPrimaryKeyData);
 //        Dataset<Row> invalidForeignKeyData = validPrimaryKeyData.except(validData).withColumn("reject_reason", lit("foreign key violation"));
 
         long endValidation = System.currentTimeMillis();
@@ -69,7 +69,6 @@ public class UpdateTables {
         else{
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "No validData");
         }
-
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
         String elapsedTimeString = elapsedTime(elapsedTime);
@@ -77,6 +76,15 @@ public class UpdateTables {
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Total elapsed time: " + elapsedTimeString);
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline execution complete");
         logger.info("============================================================");
+    }
 
+    public void executePipeline(int index){
+        System.out.println("[" + getClass().getSimpleName() + "]");
+
+        ExtractSpark extract = new ExtractSpark(spark, name, sizeFactor);
+        Dataset<Row> newData = extract.multipleUpdate(index);
+
+        LoadSpark load = new LoadSpark(name, sizeFactor);
+        load.appendToMysql(newData,true);
     }
 }

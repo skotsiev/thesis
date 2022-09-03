@@ -1,4 +1,4 @@
-package pipelines;
+package pipelines.delta;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -11,8 +11,6 @@ import java.util.concurrent.TimeoutException;
 import static etl.common.Constants.ROOT_CSV_PATH;
 import static etl.common.Schemas.createSchema;
 import static org.apache.spark.sql.functions.*;
-import static org.apache.spark.sql.types.DataTypes.DoubleType;
-import static org.apache.spark.sql.types.DataTypes.IntegerType;
 
 public class StreamingUpdateFile {
 
@@ -35,7 +33,7 @@ public class StreamingUpdateFile {
                 .readStream()
                 .option("header", false)
                 .option("delimiter", ";")
-                .option("rowsPerSecond", 3)
+//                .option("rowsPerSecond", 3)
                 .option("maxFilesPerTrigger", 1)
                 .format("csv")
                 .schema(createSchema("lineitem"))
@@ -44,7 +42,7 @@ public class StreamingUpdateFile {
         lineItemStreamDF
                 .writeStream()
                 .format("delta")
-                .option("numRows", "3")
+//                .option("numRows", "3")
                 .outputMode("append")
                 .option("checkpointLocation", "/tmp/delta/_checkpoints/")
                 .start("/tmp/delta-lineitem" + sizeFactor);

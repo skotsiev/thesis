@@ -37,19 +37,16 @@ public class DataAnalyticsBatch {
             ArrayList<String> queriesList = queriesList();
 
             for (String query : queriesList) {
-                logger.info("[" + getClass().getSimpleName() + "]\t" + "Start query " + query );
                 long startLoop = System.currentTimeMillis();
                 execute(query);
                 long endLoop = System.currentTimeMillis();
                 long elapsedTimeLoop = endLoop - startLoop;
                 String elapsedTimeString = elapsedTime(elapsedTimeLoop);
-                System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total time to query: " + query + ":" + elapsedTimeString);
-                logger.info("[" + getClass().getSimpleName() + "]\t" + "Total process time   :" + elapsedTimeString);
+                logger.info("[" + getClass().getSimpleName() + "]\t" + "Time for " + query + ":" + elapsedTimeString);
             }
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
             String elapsedTimeString = elapsedTime(elapsedTime);
-            System.out.println("[" + getClass().getSimpleName() + "]\t" + "Pipeline elapsed time: " + elapsedTimeString);
             logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline elapsed time: " + elapsedTimeString);
         } else {
             execute(q);
@@ -65,8 +62,8 @@ public class DataAnalyticsBatch {
         Dataset<Row> queryResult = spark.sql(query);
 
         if (queryResult.count() != 0) {
-            LoadSpark load = new LoadSpark(q);
-            load.overwriteToMysql(queryResult, "data_analytics");
+            LoadSpark load = new LoadSpark(q, sizeFactor);
+            load.overwriteToMysql(queryResult, "data_analytics" + sizeFactor, true);
         }
     }
 }

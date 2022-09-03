@@ -47,10 +47,10 @@ public class ExtractDelta {
     }
 
     public Dataset<Row> extractFromCsv(Boolean updateFlag){
-        final String rootPath = ROOT_CSV_PATH;
+
         final String path;
-        if (updateFlag) path = rootPath + sizeFactor + "/update/" + name + ".tbl";
-        else path = rootPath + sizeFactor + "/original/" + name + ".tbl";
+        if (updateFlag) path = ROOT_CSV_PATH + "/updates/" + name + "*";
+        else path = ROOT_CSV_PATH + sizeFactor + "/original/" + name + ".tbl";
 
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Import data from " + name + ".csv");
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Start reading data");
@@ -65,8 +65,17 @@ public class ExtractDelta {
         long elapsedTime = end - start;
         String elapsedTimeString = elapsedTime(elapsedTime);
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read " + dataFrame.count() + " lines: " + elapsedTimeString);
-        logger.info("[" + getClass().getSimpleName() + "]\t" + "Read\t" + dataFrame.count() + "\tlines:" + elapsedTimeString);
+//        logger.info("[" + getClass().getSimpleName() + "]\t" + "Read\t" + dataFrame.count() + "\tlines:" + elapsedTimeString);
         return dataFrame;
     }
 
+    public Dataset<Row> multipleUpdate(int index) {
+        final String  path = ROOT_CSV_PATH + "/updates/" + name + ".tbl.u*" + index;
+        return spark.read()
+                .option("header", false)
+                .option("delimiter", "|")
+                .format("csv")
+                .schema(createSchema(name))
+                .csv(path);
+    }
 }

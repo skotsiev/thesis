@@ -14,13 +14,15 @@ import static org.apache.spark.sql.functions.*;
 
 public class TransformSpark {
 
-    public TransformSpark(SparkSession spark, String name) {
+    public TransformSpark(SparkSession spark, String name, String sizeFactor) {
         this.spark = spark;
         this.name = name;
+        this.sizeFactor = sizeFactor;
     }
 
     private final SparkSession spark;
     private final String name;
+    private final String sizeFactor;
 
     public Dataset<Row> validDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataPrimaryKeyCheck");
@@ -171,8 +173,8 @@ public class TransformSpark {
         }
     }
 
-    public Dataset<Row> invalidDataForeinKeyCheck(Dataset<Row> dataFrame) {
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck");
+    public Dataset<Row> invalidDataForeignKeyCheck(Dataset<Row> dataFrame) {
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeignKeyCheck");
         TableInfo tableInfo = new TableInfo(name);
         int foreignKeyCount = tableInfo.getForeignKeys().size()/2;
 
@@ -229,12 +231,12 @@ public class TransformSpark {
                         .withColumn("reject_reason", lit("foreign key violation"));
             }
 
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck done");
+            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeignKeyCheck done");
             invalidData.show();
             return invalidData;
         }
         else{
-            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeinKeyCheck skipped");
+            System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "invalidDataForeignKeyCheck skipped");
             return dataFrame;
         }
     }

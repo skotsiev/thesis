@@ -1,25 +1,30 @@
 package etl.delta;
 
 import etl.common.TableInfo;
+import io.delta.tables.*;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import static etl.common.Constants.tableColumnList;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.lit;
 
 public class TransformDelta {
 
-    public TransformDelta(SparkSession spark, String name) {
+    public TransformDelta(SparkSession spark, String name, String sizeFactor) {
         this.spark = spark;
         this.name = name;
+        this.sizeFactor = sizeFactor;
     }
 
     private final SparkSession spark;
     private final String name;
+    private final String sizeFactor;
 
 
     public Dataset<Row> validDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
@@ -36,7 +41,7 @@ public class TransformDelta {
         }
 
         Dataset<Row> dataframeFromDB = spark.read().format("delta")
-                .load("/tmp/delta-" + name)
+                .load("/tmp/delta-" + name + sizeFactor)
                 .select(primaryKeyColumn);
 
         Dataset<Row> newDataFrameKeys = dataFrame
@@ -63,6 +68,41 @@ public class TransformDelta {
         return validData;
     }
 
+    public void validDataPrimaryKeyCheckDeltaTable(Dataset<Row> dataFrame) {
+
+        System.out.println("[" + getClass().getSimpleName() + "]\t" + "validDataPrimaryKeyCheck");
+        TableInfo tableInfo = new TableInfo(name);
+        int primaryKeyCount = tableInfo.getPrimaryKeys().size();
+
+        ArrayList<String> primaryKeys = tableInfo.getPrimaryKeys();
+
+        DeltaTable dataframeFromDB = DeltaTable.forPath(spark, "/tmp/delta-" + name + sizeFactor);
+
+        System.out.println("[" + getClass().getSimpleName() + "]\t" + "primaryKeyCount: " + primaryKeyCount);
+        if (primaryKeyCount == 1) {
+            dataframeFromDB
+                    .as("db")
+                    .merge(
+                            dataFrame.as("new"),
+                            "db." + primaryKeys.get(0) + " = " + "new." + primaryKeys.get(0)
+                    )
+                    .whenNotMatched()
+                    .insertExpr(mapper(name))
+                    .execute();
+        }
+        else if (primaryKeyCount == 2) {
+            dataframeFromDB
+                    .as("db")
+                    .merge(
+                            dataFrame.as("new"),
+                            "db." + primaryKeys.get(0) + " = " + "new." + primaryKeys.get(0) +
+                            " and db." + primaryKeys.get(1) + " = " + "new." + primaryKeys.get(1)
+                    )
+                    .whenNotMatched()
+                    .insertExpr(mapper(name))
+                    .execute();
+        }
+    }
     public Dataset<Row> invalidDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
         System.out.println("[" + getClass().getSimpleName() + "]\t" + "invalidDataPrimaryKeyCheck");
         TableInfo tableInfo = new TableInfo(name);
@@ -76,7 +116,7 @@ public class TransformDelta {
         }
 
         Dataset<Row> dataframeFromDB = spark.read().format("delta")
-                .load("/tmp/delta-" + name)
+                .load("/tmp/delta-" + name + sizeFactor)
                 .select(primaryKeyColumn);
 
         Dataset<Row> newDataFrameKeys = dataFrame
@@ -227,5 +267,14 @@ public class TransformDelta {
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "invalidDataForeinKeyCheck skipped");
             return dataFrame;
         }
+    }
+
+    private HashMap<String, String> mapper(String name){
+        HashMap<String, String> hashMap = new HashMap<>();
+        final ArrayList<String> tableColumnList = tableColumnList(name);
+        for (String columnName : tableColumnList){
+            hashMap.put(columnName, "new." + columnName);
+        }
+        return hashMap;
     }
 }

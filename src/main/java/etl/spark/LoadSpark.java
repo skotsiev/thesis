@@ -13,16 +13,17 @@ import org.apache.logging.log4j.Logger;
 
 public class LoadSpark {
     final static Logger logger = LogManager.getLogger(LoadSpark.class);
-    public LoadSpark(String name) {
+    public LoadSpark(String name, String sizeFactor) {
         this.name = name;
+        this.sizeFactor = sizeFactor;
     }
-    String name;
+    private final String name;
+    private final String sizeFactor;
 
     public void overwriteToMysql(Dataset<Row> data, String schema){
         long count = data.count();
         System.out.println("[" + getClass().getSimpleName() + "]" + "\t\t\toverwriteToMysql: " + schema+ "." + name );
         long start = System.currentTimeMillis();
-
         data
                 .withColumn("register_date", current_timestamp())
                 .write()
@@ -35,22 +36,33 @@ public class LoadSpark {
         String elapsedTimeString = elapsedTime(elapsedTime);
 
         System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "Write " + count + " lines " + name + ": " + elapsedTimeString);
-        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
+//        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
+    }
+
+    public void overwriteToMysql(Dataset<Row> data, String schema, boolean b){
+        System.out.println("[" + getClass().getSimpleName() + "]" + "\t\t\toverwriteToMysql: " + schema+ "." + name );
+        data
+            .withColumn("register_date", current_timestamp())
+            .write()
+            .option("drop", "true")
+            .mode("overwrite")
+            .jdbc(MYSQL_URL, schema+ "." + name, connectionProperties());
     }
 
     public void appendToMysql(Dataset<Row> data, Boolean flag){
-        String table = "warehouse.";
+        long start = System.currentTimeMillis();
+        String table = "warehouse" + sizeFactor + ".";
         long count = data.count();
 
         if (flag) {
-            table += name;
+            table += name ;
         } else {
             table += name + "_rejected";
         }
 
         System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "appendToMysql: " + table);
         System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" +  "data count: "+ count );
-        long start = System.currentTimeMillis();
+
         data
                 .withColumn("register_date", current_timestamp())
                 .write()

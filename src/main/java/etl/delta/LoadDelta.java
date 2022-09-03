@@ -12,11 +12,13 @@ public class LoadDelta {
 
     final static Logger logger = LogManager.getLogger(LoadDelta.class);
 
-    public LoadDelta(String name) {
+    public LoadDelta(String name, String sizeFactor) {
         this.name = name;
+        this.sizeFactor = sizeFactor;
     }
 
     private final String name;
+    private final String sizeFactor;
 
     public void overwriteToDelta(SparkSession spark, Dataset<Row> data) {
         long start = System.currentTimeMillis();
@@ -24,18 +26,20 @@ public class LoadDelta {
         data.write()
                 .format("delta")
                 .mode("overwrite")
-                .save("/tmp/delta-" + name);
+                .save("/tmp/delta-" + name + sizeFactor);
 
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
         String elapsedTimeString = elapsedTime(elapsedTime);
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "Write " + count + " lines " + name + ": " + elapsedTimeString);
+//        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
+    }
 
-        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
-        Dataset<Row> df = spark.read().format("delta")
-                .load("/tmp/delta-" + name)
-                ;
-        df.show();
-
+    public void overwriteToDelta(SparkSession spark, Dataset<Row> data, boolean withLogs) {
+        data.write()
+                .format("delta")
+                .mode("overwrite")
+                .save("/tmp/delta-" + name + sizeFactor);
     }
 
     public void appendToDelta(Dataset<Row> data, Boolean flag) {
@@ -43,7 +47,7 @@ public class LoadDelta {
         long count = data.count();
 
         if (flag) {
-            path += name;
+            path += name + sizeFactor;
         } else {
             path += name + "-rejected";
         }

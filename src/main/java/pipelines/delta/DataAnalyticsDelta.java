@@ -31,27 +31,23 @@ public class DataAnalyticsDelta {
         logger.info("-----------------------------------------------------------------");
         logger.info("[" + getClass().getSimpleName() + "]\t" + "sizeFactor " + sizeFactor);
         logger.info("-----------------------------------------------------------------");
-        ArrayList<Dataset<Row>> resultsDataFrame = new ArrayList<>();
+        long start = System.currentTimeMillis();
 
         if (q.equals("all")) {
-            long start = System.currentTimeMillis();
             ArrayList<String> queriesList = queriesList();
 
-            for (String i : queriesList) {
-                logger.info("[" + getClass().getSimpleName() + "]\t" + "Start query " + i );
+            for (String query : queriesList) {
                 long startLoop = System.currentTimeMillis();
-                execute(i);
+                execute(query);
                 long endLoop = System.currentTimeMillis();
                 long elapsedTimeLoop = endLoop - startLoop;
                 String elapsedTimeString = elapsedTime(elapsedTimeLoop);
-                System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total process time: " + i + ":" + elapsedTimeString);
-                logger.info("[" + getClass().getSimpleName() + "]\t" + "Total process time   :" + elapsedTimeString);
+                logger.info("[" + getClass().getSimpleName() + "]\t" + "Time for " + query + ":" + elapsedTimeString);
             }
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
             String elapsedTimeString = elapsedTime(elapsedTime);
-            System.out.println("[" + getClass().getSimpleName() + "]\t" + "Pipeline elapsed time: " + elapsedTimeString);
-            logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline elapsed time: " + elapsedTimeString);
+            logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline time:" + elapsedTimeString);
         } else {
             execute(q);
         }
@@ -59,15 +55,14 @@ public class DataAnalyticsDelta {
         logger.info("=================================================================");
     }
 
-    private Dataset<Row> execute(String q) {
+    private void execute(String q) {
         String query = Queries.tpchQueries.get(q);
 
         Dataset<Row> queryResult = spark.sql(query);
 
         if (queryResult.count() != 0) {
-            LoadDelta load = new LoadDelta(q);
-            load.overwriteToDelta(spark, queryResult);
+            LoadDelta load = new LoadDelta(q, sizeFactor);
+            load.overwriteToDelta(spark, queryResult,false);
         }
-        return queryResult;
     }
 }

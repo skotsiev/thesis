@@ -40,14 +40,13 @@ public class InitDataImportDelta {
             ArrayList<String> tableList = tableList();
 
             for(String i : tableList ) {
-                logger.info("[" + getClass().getSimpleName() + "]\t" + "Start importing " + i );
                 long startLoop = System.currentTimeMillis();
                 execute(i);
                 long endLoop = System.currentTimeMillis();
                 long elapsedTimeLoop = endLoop - startLoop;
                 String elapsedTimeString = elapsedTime(elapsedTimeLoop);
                 System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total time to import: " + i + ":" + elapsedTimeString);
-                logger.info("[" + getClass().getSimpleName() + "]\t" + "Total time to import :" + elapsedTimeString);
+                logger.info("[" + getClass().getSimpleName() + "]\t" + "Total time to import "  + i + ":" + elapsedTimeString);
             }
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
@@ -67,7 +66,7 @@ public class InitDataImportDelta {
         Dataset<Row> data = extract.extractFromCsv(false);
 
         if(data.count() != 0){
-            LoadDelta load = new LoadDelta(name + sizeFactor);
+            LoadDelta load = new LoadDelta(name, sizeFactor);
             load.overwriteToDelta(spark, data);
         }
     }

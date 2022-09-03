@@ -94,4 +94,5 @@ public class TableInfo {
     private void addForeignKeyTable(String key) {
         this.foreignKeyTable.add(key);
     }
+
 }

@@ -1,4 +1,4 @@
-package pipelines;
+package pipelines.delta;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;

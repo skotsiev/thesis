@@ -39,14 +39,13 @@ public class InitialDataImport{
             ArrayList<String> tableList = tableList();
 
             for(String table : tableList ) {
-                logger.info("[" + getClass().getSimpleName() + "]\t" + "Start importing " + table );
                 long startLoop = System.currentTimeMillis();
                 execute(table);
                 long endLoop = System.currentTimeMillis();
                 long elapsedTimeLoop = endLoop - startLoop;
                 String elapsedTimeString = elapsedTime(elapsedTimeLoop);
                 System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total time to import: " + table + ":" + elapsedTimeString);
-                logger.info("[" + getClass().getSimpleName() + "]\t" + "Total time to import :" + elapsedTimeString);
+                logger.info("[" + getClass().getSimpleName() + "]\t" + "Total time to import " + table + ":" + elapsedTimeString);
             }
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
@@ -66,7 +65,7 @@ public class InitialDataImport{
         Dataset<Row> data = extract.extractFromCsv(false);
 
         if(data.count() != 0){
-            LoadSpark load = new LoadSpark(name);
+            LoadSpark load = new LoadSpark(name, sizeFactor );
             load.overwriteToMysql(data, "warehouse"+sizeFactor);
         }
     }
