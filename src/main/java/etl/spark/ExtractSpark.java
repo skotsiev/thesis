@@ -6,7 +6,7 @@ import org.apache.spark.sql.SparkSession;
 
 import static etl.common.Constants.ROOT_CSV_PATH;
 import static etl.common.Schemas.createSchema;
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 
 public class ExtractSpark {
 
@@ -24,7 +24,7 @@ public class ExtractSpark {
     public Dataset<Row> extractFromCsv(Boolean updateFlag) {
 
         final String path;
-        if (updateFlag) path = ROOT_CSV_PATH + "/updates/" + name + ".tbl";
+        if (updateFlag) path = ROOT_CSV_PATH + "/updates/*" + name + "*";
         else path = ROOT_CSV_PATH + sizeFactor + "/original/" + name + ".tbl";
 
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Import data from " + name + ".csv");
@@ -38,14 +38,14 @@ public class ExtractSpark {
                 .csv(path);
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Read " + dataFrame.count() + " lines from " + name + ": " + elapsedTimeString);
 //        logger.info("[" + getClass().getSimpleName() + "]\t" + "Read\t" + dataFrame.count() + "\tlines:" + elapsedTimeString);
         return dataFrame;
     }
 
     public Dataset<Row> multipleUpdate(int index) {
-        final String  path = ROOT_CSV_PATH + "/updates/" + name + ".tbl.u1." + index;
+        final String  path = ROOT_CSV_PATH + "/updates/*" + name + ".tbl.u*" + index;
         return spark.read()
                 .option("header", false)
                 .option("delimiter", "|")

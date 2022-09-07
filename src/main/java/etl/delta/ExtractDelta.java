@@ -9,7 +9,7 @@ import org.apache.spark.sql.SparkSession;
 
 import static etl.common.Constants.ROOT_CSV_PATH;
 import static etl.common.Schemas.createSchema;
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 
 public class ExtractDelta {
 
@@ -40,7 +40,7 @@ public class ExtractDelta {
                 .load(path);
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read" + dataFrame.count() + " lines: " + elapsedTimeString);
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Read\t" + dataFrame.count() + "\tlines:" + elapsedTimeString);
         return dataFrame;
@@ -63,14 +63,14 @@ public class ExtractDelta {
                 .csv(path);
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to read " + dataFrame.count() + " lines: " + elapsedTimeString);
 //        logger.info("[" + getClass().getSimpleName() + "]\t" + "Read\t" + dataFrame.count() + "\tlines:" + elapsedTimeString);
         return dataFrame;
     }
 
     public Dataset<Row> multipleUpdate(int index) {
-        final String  path = ROOT_CSV_PATH + "/updates/" + name + ".tbl.u*" + index;
+        final String  path = ROOT_CSV_PATH + "/updates/*" + name + ".tbl.u*" + index;
         return spark.read()
                 .option("header", false)
                 .option("delimiter", "|")

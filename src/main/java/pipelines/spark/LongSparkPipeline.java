@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.spark.sql.SparkSession;
 import pipelines.common.Initializer;
 
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 
 
 public class LongSparkPipeline {
@@ -29,29 +29,36 @@ public class LongSparkPipeline {
         logger.info("=================================================================");
         long start = System.currentTimeMillis();
 
-        InitialDataImport dataImport = new InitialDataImport(spark, "all", sizeFactor);
-        dataImport.executePipeline();
+//        InitialDataImport dataImport = new InitialDataImport(spark, "lineitem", sizeFactor);
+//        dataImport.executePipeline();
 
         Initializer.initJdbc(spark, sizeFactor);
         DataAnalyticsBatch dataBatch = new DataAnalyticsBatch(spark, sizeFactor);
-        dataBatch.executePipeline("all");
+        long startq1 = System.currentTimeMillis();
+        dataBatch.executePipeline("q01");
+        long endq1 = System.currentTimeMillis();
+        long elapsedTimeq1 = endq1 - startq1;
+        String elapsedTimeqString1 = elapsedTimeSeconds(elapsedTimeq1);
+        logger.info("[" + getClass().getSimpleName() + "]\t" + "query execution time " + elapsedTimeqString1);
 
         for (int i = 1; i <= fileCount; i ++){
             UpdateTables updateLineItem = new UpdateTables(spark, "lineitem", sizeFactor);
-            UpdateTables updateOrders = new UpdateTables(spark, "orders", sizeFactor);
+//            UpdateTables updateOrders = new UpdateTables(spark, "orders", sizeFactor);
             updateLineItem.executePipeline(i);
-            updateOrders.executePipeline(i);
+//            updateOrders.executePipeline(i);
             Initializer.initJdbc(spark, sizeFactor);
-            dataBatch.executePipeline("all");
+            long startq = System.currentTimeMillis();
+            dataBatch.executePipeline("q01");
+            long endq = System.currentTimeMillis();
+            long elapsedTimeq = endq - startq;
+            String elapsedTimeqString = elapsedTimeSeconds(elapsedTimeq);
+            logger.info("[" + getClass().getSimpleName() + "]\t" + "query execution time " + elapsedTimeqString);
         }
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Benchmark elapsed time: " + elapsedTimeString);
         logger.info("=================================================================");
 
     }
-
-
-
 }

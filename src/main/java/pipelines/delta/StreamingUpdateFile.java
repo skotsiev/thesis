@@ -5,6 +5,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
+import org.apache.spark.sql.streaming.Trigger;
 
 import java.util.concurrent.TimeoutException;
 
@@ -26,38 +27,24 @@ public class StreamingUpdateFile {
 
     public void executePipeline() throws TimeoutException, StreamingQueryException {
 
-//        final String lineitemFile = "/home/soslan/Desktop/data/100MB/stream/lineitem*.csv";
         final String lineitemFile = ROOT_CSV_PATH +"/stream/";
 
-        Dataset<Row> lineItemStreamDF = spark
+        StreamingQuery streamingQuery = spark
                 .readStream()
                 .option("header", false)
-                .option("delimiter", ";")
-//                .option("rowsPerSecond", 3)
+                .option("delimiter", "|")
                 .option("maxFilesPerTrigger", 1)
                 .format("csv")
                 .schema(createSchema("lineitem"))
-                .csv(lineitemFile);
-
-        lineItemStreamDF
+                .csv(lineitemFile)
                 .writeStream()
                 .format("delta")
-//                .option("numRows", "3")
                 .outputMode("append")
                 .option("checkpointLocation", "/tmp/delta/_checkpoints/")
                 .start("/tmp/delta-lineitem" + sizeFactor);
 
-        Dataset<Row> dataFrameFromDelta = spark.readStream()
-                .format("delta")
-                .load("/tmp/delta-lineitem" + sizeFactor);
 
-        Dataset<Row> result = dataFrameFromDelta.agg(count(col("l_orderkey")));
-
-        StreamingQuery streamingQuery = result
-                .writeStream()
-                .outputMode("complete")
-                .format("console")
-                .start();
+        System.out.println(streamingQuery.lastProgress());
         streamingQuery.awaitTermination();
     }
 }

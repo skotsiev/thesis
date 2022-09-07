@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException;
 
 import static etl.common.Constants.*;
 import static etl.common.Schemas.createSchema;
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 
 
 public class Initializer {
@@ -36,7 +36,7 @@ public class Initializer {
         }
         long endLoop = System.currentTimeMillis();
         long elapsedTimeLoop = endLoop - startLoop;
-        String elapsedTimeString = elapsedTime(elapsedTimeLoop);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTimeLoop);
         logger.info("[" + Initializer.class.getSimpleName() + "]\t" + "Total init time   :" + elapsedTimeString);
         logger.info("-----------------------------------------------------------------");
         System.out.println("Done");
@@ -57,7 +57,7 @@ public class Initializer {
         }
         long endLoop = System.currentTimeMillis();
         long elapsedTimeLoop = endLoop - startLoop;
-        String elapsedTimeString = elapsedTime(elapsedTimeLoop);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTimeLoop);
         logger.info("[" + Initializer.class.getSimpleName() + "]\t" + "Total init time   :" + elapsedTimeString);
         logger.info("-----------------------------------------------------------------");
 

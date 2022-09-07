@@ -36,25 +36,21 @@ public class Main {
         ArrayList<String> sizeFactorList = sizeFactorList();
 
         switch (execType) {
-//            case "extract": {
-//                for (String i : sizeFactorList) {
-//                    InitialDataImport pipeline = new InitialDataImport(spark, query, i);
-//                    pipeline.executePipeline();
-//                }
-//                for (String sizeFactor : sizeFactorList) {
-//                    InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, sizeFactor);
-//                    pipeline.executePipeline();
-//                }
-//                break;
-//            }
-//            case "delta": {
-//                for (String sizeFactor : sizeFactorList) {
-//                    InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, sizeFactor);
-//                    pipeline.executePipeline();
-//                }
-//                break;
-//            }
-//            case "nativebatch": {
+            case "initial-import-delta": {
+                for (String sizeFactor : sizeFactorList) {
+                    InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, sizeFactor);
+                    pipeline.executePipeline();
+                }
+                break;
+            }
+            case "initial-import-spark": {
+                for (String i : sizeFactorList) {
+                    InitialDataImport pipeline = new InitialDataImport(spark, query, i);
+                    pipeline.executePipeline();
+                }
+                break;
+            }
+//            case "native-batch-spark": {
 //                for (String sizeFactor : sizeFactorList) {
 //                    Initializer.initJdbc(spark, sizeFactor);
 //                    DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark, sizeFactor);
@@ -62,7 +58,13 @@ public class Main {
 //                }
 //                break;
 //            }
-//            case "nativebatchdelta": {
+            case "native-batch-delta": {
+                    Initializer.initDelta(spark, "100MB");
+                    DataAnalyticsDelta pipeline = new DataAnalyticsDelta(spark, "100MB");
+                    pipeline.executePipeline(query);
+                break;
+            }
+//            case "native-batch-delta": {
 //                for (String sizeFactor : sizeFactorList) {
 //                    Initializer.initDelta(spark, sizeFactor);
 //                    DataAnalyticsDelta pipeline = new DataAnalyticsDelta(spark, sizeFactor);
@@ -70,45 +72,57 @@ public class Main {
 //                }
 //                break;
 //            }
-            case "sparkbenchmark": {
+            case "update-data-spark": {
+                for (String i : sizeFactorList) {
+                    UpdateTables pipeline = new UpdateTables(spark, query, i);
+                    pipeline.executePipeline();
+                }
+                break;
+            }
+            case "update-data-delta": {
+                for (String i : sizeFactorList) {
+                    UpdateTablesDelta2 pipeline = new UpdateTablesDelta2(spark, query, i);
+                    pipeline.executePipeline();
+                }
+                break;
+            }
+            case "delta": {
+                InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, "1GB");
+                pipeline.executePipeline();
+                break;
+            }
+            case "spark": {
+                InitialDataImport pipeline = new InitialDataImport(spark, query, "1GB");
+                pipeline.executePipeline();
+                break;
+            }
+            case "consecutive-updates-spark": {
                 LongSparkPipeline pipeline = new LongSparkPipeline(spark, "1GB", 5);
                 pipeline.executePipeline();
                 break;
             }
-            case "deltabenchmark": {
+            case "consecutive-updates-delta": {
                 LongDeltaPipeline pipeline = new LongDeltaPipeline(spark, "1GB", 5);
                 pipeline.executePipeline();
                 break;
             }
-            case "nativebatchdelta": {
-                Initializer.initDelta(spark, "100MB");
-                DataAnalyticsDelta pipeline = new DataAnalyticsDelta(spark, "100MB");
-                pipeline.executePipeline(query);
-                break;
-            }
-            case "extract": {
-                InitialDataImport pipeline = new InitialDataImport(spark, query, "100MB");
+            case "consecutive-updates-stream": {
+                ShowDeltaTable pipeline = new ShowDeltaTable(spark, query, "1GB");
                 pipeline.executePipeline();
                 break;
             }
-            case "delta": {
-                InitDataImportDelta pipeline = new InitDataImportDelta(spark, query, "100MB");
-                pipeline.executePipeline();
-                break;
-            }
-            case "nativebatch": {
-                Initializer.initJdbc(spark, "100MB");
-                DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark, "100MB");
+            case "native-batch-spark": {
+                Initializer.initJdbc(spark, "5GB");
+                DataAnalyticsBatch pipeline = new DataAnalyticsBatch(spark, "5GB");
                 pipeline.executePipeline(query);
                 break;
             }
-
             case "streamupdate": {
                 StreamingUpdateSocket pipeline = new StreamingUpdateSocket(spark, query);
                 pipeline.executePipeline();
                 break;
             }
-            case "streamupdatecsv": {
+            case "stream-update-csv": {
                 StreamingUpdateFile pipeline = new StreamingUpdateFile(spark, query,"1GB");
                 pipeline.executePipeline();
                 break;
@@ -118,18 +132,19 @@ public class Main {
                 pipeline.executePipeline();
                 break;
             }
+
             case "showdelta": {
-                ShowDeltaTable pipeline = new ShowDeltaTable(spark, query, "1GB");
-                pipeline.executePipeline();
-                break;
-            }
-            case "showq": {
-                ShowDeltaQ pipeline = new ShowDeltaQ(spark, query);
+                ShowDeltaQ pipeline = new ShowDeltaQ(spark, query, "1GB");
                 pipeline.executePipeline();
                 break;
             }
             case "showdeltacount": {
                 ShowDeltaTableCount pipeline = new ShowDeltaTableCount(spark, query);
+                pipeline.executePipeline();
+                break;
+            }
+            case "show-delta-stream": {
+                ShowDeltaTableStream pipeline = new ShowDeltaTableStream(spark, query, "1GB");
                 pipeline.executePipeline();
                 break;
             }
@@ -143,16 +158,11 @@ public class Main {
                 pipeline.executePipeline();
                 break;
             }
-            case "update": {
-                UpdateTables pipeline = new UpdateTables(spark, query, "100MB");
-                pipeline.executePipeline();
-                break;
-            }
-            case "nativestream":
-                Initializer.initJdbc(spark, "100MB");
-                NativeQueriesStream.execute(spark, query + "s");
-                break;
-
+//            case "update-data-spark": {
+//                UpdateTables pipeline = new UpdateTables(spark, query, "100MB");
+//                pipeline.executePipeline();
+//                break;
+//            }
             default:
                 System.out.println("[" + Main.class.getSimpleName() + "]\t" + "Invalid args");
                 break;

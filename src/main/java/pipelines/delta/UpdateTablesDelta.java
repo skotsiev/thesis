@@ -10,7 +10,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import pipelines.spark.UpdateTables;
 
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 
 public class UpdateTablesDelta {
     final static Logger logger = LogManager.getLogger(UpdateTables.class);
@@ -68,7 +68,7 @@ public class UpdateTablesDelta {
 
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
         System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total elapsed time: " + elapsedTimeString);
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Total elapsed time: " + elapsedTimeString);
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline execution complete");
@@ -85,7 +85,7 @@ public class UpdateTablesDelta {
         load.appendToDelta(newData,true);
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
         System.out.println("[" + getClass().getSimpleName() + "]\t" + "executePipeline time: " + elapsedTimeString);
     }
 }

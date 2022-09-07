@@ -14,27 +14,23 @@ import java.util.concurrent.TimeoutException;
 public class ShowDeltaQ {
 
 
-    public ShowDeltaQ(SparkSession spark, String name) {
+    public ShowDeltaQ(SparkSession spark, String name,  String sizeFactor) {
         this.spark = spark;
         this.name = name;
+        this.sizeFactor = sizeFactor;
     }
 
     private final SparkSession spark;
     private final String name;
+    private final String sizeFactor;
 
 
     public void executePipeline() throws StreamingQueryException, TimeoutException {
 
-        Dataset<Row> dataFrameFromDelta = spark.readStream()
+        Dataset<Row> dataFrameFromDelta = spark.read()
                 .format("delta")
-                .load("/tmp/delta-" + name);
-
-        StreamingQuery streamingQuery = dataFrameFromDelta
-                .writeStream()
-                .outputMode("update")
-                .format("console")
-                .start();
-        streamingQuery.awaitTermination();
-
+                .load("/tmp/delta-" + name + sizeFactor);
+        System.out.println("dataFrameFromDelta.count: " + dataFrameFromDelta.count());
+        dataFrameFromDelta.show();
     }
 }

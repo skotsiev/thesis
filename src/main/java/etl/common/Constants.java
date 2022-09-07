@@ -29,15 +29,15 @@ public class Constants {
 
     static public ArrayList<String> queriesList() {
         final ArrayList<String> queriesList = new ArrayList<>();
-        queriesList.add("q01");
+        queriesList.add("q01"); //failed in 5GB
         queriesList.add("q02");
         queriesList.add("q03");
         queriesList.add("q04");
         queriesList.add("q05");
         queriesList.add("q06");
         queriesList.add("q07");
-        queriesList.add("q08");
-        queriesList.add("q09");
+        queriesList.add("q08"); //failed in 5GB
+        queriesList.add("q09"); //failed in 5GB
         queriesList.add("q10");
         queriesList.add("q11");
         queriesList.add("q12");

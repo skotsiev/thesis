@@ -11,7 +11,7 @@ import pipelines.common.Queries;
 import java.util.ArrayList;
 
 import static etl.common.Constants.queriesList;
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 
 public class DataAnalyticsBatch {
 
@@ -41,14 +41,15 @@ public class DataAnalyticsBatch {
                 execute(query);
                 long endLoop = System.currentTimeMillis();
                 long elapsedTimeLoop = endLoop - startLoop;
-                String elapsedTimeString = elapsedTime(elapsedTimeLoop);
+                String elapsedTimeString = elapsedTimeSeconds(elapsedTimeLoop);
                 logger.info("[" + getClass().getSimpleName() + "]\t" + "Time for " + query + ":" + elapsedTimeString);
             }
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
-            String elapsedTimeString = elapsedTime(elapsedTime);
+            String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
             logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline elapsed time: " + elapsedTimeString);
         } else {
+
             execute(q);
         }
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline execution complete");
@@ -63,7 +64,7 @@ public class DataAnalyticsBatch {
 
         if (queryResult.count() != 0) {
             LoadSpark load = new LoadSpark(q, sizeFactor);
-            load.overwriteToMysql(queryResult, "data_analytics" + sizeFactor, true);
+            load.overwriteToMysql(queryResult, "data_analytics" + sizeFactor);
         }
     }
 }

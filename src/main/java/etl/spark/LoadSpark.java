@@ -5,7 +5,7 @@ import org.apache.spark.sql.Row;
 
 import static etl.common.Constants.MYSQL_URL;
 import static etl.common.Constants.connectionProperties;
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 import static org.apache.spark.sql.functions.current_timestamp;
 
 import org.apache.logging.log4j.LogManager;
@@ -33,10 +33,10 @@ public class LoadSpark {
 
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
 
         System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "Write " + count + " lines " + name + ": " + elapsedTimeString);
-//        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
+        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
     }
 
     public void overwriteToMysql(Dataset<Row> data, String schema, boolean b){
@@ -71,7 +71,7 @@ public class LoadSpark {
 
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
 
         System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "Elapsed time to update " + count + " lines to " + table + ": " + elapsedTimeString);
         logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to update " + count + " lines to " + table + ": " + elapsedTimeString);

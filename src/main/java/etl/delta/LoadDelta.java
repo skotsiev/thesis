@@ -6,7 +6,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 
 public class LoadDelta {
 
@@ -30,9 +30,9 @@ public class LoadDelta {
 
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
         System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "Write " + count + " lines " + name + ": " + elapsedTimeString);
-//        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
+        logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Write\t" + count + "\tlines:" + elapsedTimeString);
     }
 
     public void overwriteToDelta(SparkSession spark, Dataset<Row> data, boolean withLogs) {
@@ -52,7 +52,7 @@ public class LoadDelta {
             path += name + "-rejected";
         }
         long start = System.currentTimeMillis();
-
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t\t" + "Write to " + path + " ,count " + count );
         data.write()
                 .format("delta")
                 .mode("Append")
@@ -60,7 +60,7 @@ public class LoadDelta {
 
         long end = System.currentTimeMillis();
         long elapsedTime = end - start;
-        String elapsedTimeString = elapsedTime(elapsedTime);
+        String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
         logger.info("[" + getClass().getSimpleName() + "]\t\t" + "Elapsed time to write " + count + " lines to " + name + ": " + elapsedTimeString);
     }
 }

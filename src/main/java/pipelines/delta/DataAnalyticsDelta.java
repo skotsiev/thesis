@@ -11,7 +11,7 @@ import pipelines.common.Queries;
 import java.util.ArrayList;
 
 import static etl.common.Constants.queriesList;
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 
 public class DataAnalyticsDelta {
 
@@ -41,15 +41,21 @@ public class DataAnalyticsDelta {
                 execute(query);
                 long endLoop = System.currentTimeMillis();
                 long elapsedTimeLoop = endLoop - startLoop;
-                String elapsedTimeString = elapsedTime(elapsedTimeLoop);
+                String elapsedTimeString = elapsedTimeSeconds(elapsedTimeLoop);
                 logger.info("[" + getClass().getSimpleName() + "]\t" + "Time for " + query + ":" + elapsedTimeString);
             }
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
-            String elapsedTimeString = elapsedTime(elapsedTime);
+            String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
             logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline time:" + elapsedTimeString);
         } else {
+            long startq = System.currentTimeMillis();
             execute(q);
+            long endq = System.currentTimeMillis();
+            long elapsedTimeq = endq - startq;
+            String elapsedTimeString = elapsedTimeSeconds(elapsedTimeq);
+            logger.info("[" + getClass().getSimpleName() + "]\t" + "Time for " + q + ":" + elapsedTimeString);
+
         }
         logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline execution complete");
         logger.info("=================================================================");
@@ -62,7 +68,7 @@ public class DataAnalyticsDelta {
 
         if (queryResult.count() != 0) {
             LoadDelta load = new LoadDelta(q, sizeFactor);
-            load.overwriteToDelta(spark, queryResult,false);
+            load.overwriteToDelta(spark, queryResult);
         }
     }
 }

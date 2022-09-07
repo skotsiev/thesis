@@ -18,11 +18,13 @@ public class TransformSpark {
         this.spark = spark;
         this.name = name;
         this.sizeFactor = sizeFactor;
+        this.schema = "warehouse" + sizeFactor + ".";
     }
 
     private final SparkSession spark;
     private final String name;
     private final String sizeFactor;
+    private String schema;
 
     public Dataset<Row> validDataPrimaryKeyCheck(Dataset<Row> dataFrame) {
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataPrimaryKeyCheck");
@@ -38,12 +40,14 @@ public class TransformSpark {
 
         Dataset<Row> dataframeFromDB = spark.
                 read()
-                .jdbc(MYSQL_URL, "warehouse." + name, connectionProperties())
+                .jdbc(MYSQL_URL, schema + name, connectionProperties())
                 .select(primaryKeyColumn);
+
+        dataframeFromDB.show();
 
         Dataset<Row> newDataFrameKeys = dataFrame
                 .select(primaryKeyColumn);
-
+        newDataFrameKeys.show();
         Dataset<Row> validData;
 
         System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "primaryKeyCount: " + primaryKeyCount);
@@ -60,7 +64,7 @@ public class TransformSpark {
                     .drop(dataFrame.col(primaryKeys.get(0)))
                     .drop(dataFrame.col(primaryKeys.get(1)));
         }
-        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataPrimaryKeyCheck done");
+        System.out.println("[" + getClass().getSimpleName() + "]\t\t" + "validDataPrimaryKeyCheck done. count " + validData.count());
         validData.show();
         return validData;
     }
@@ -79,7 +83,7 @@ public class TransformSpark {
 
         Dataset<Row> dataframeFromDB = spark.
                 read()
-                .jdbc(MYSQL_URL, "warehouse." + name, connectionProperties())
+                .jdbc(MYSQL_URL, schema + name, connectionProperties())
                 .select(primaryKeyColumn);
 
         Dataset<Row> newDataFrameKeys = dataFrame
@@ -134,7 +138,7 @@ public class TransformSpark {
 
                 Dataset<Row> dataframeFromDB = spark
                         .read()
-                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[0], connectionProperties())
+                        .jdbc(MYSQL_URL, schema + foreignKeyTable[0], connectionProperties())
                         .select(foreignKeyColumnTable2);
 
                 validData = newDataFrameKeys
@@ -145,12 +149,12 @@ public class TransformSpark {
 
                 Dataset<Row> dataframeFromDB1 = spark
                         .read()
-                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[0], connectionProperties())
+                        .jdbc(MYSQL_URL, schema + foreignKeyTable[0], connectionProperties())
                         .select(foreignKeyColumnTable2[0]);
 
                 Dataset<Row> dataframeFromDB2 = spark
                         .read()
-                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[1], connectionProperties())
+                        .jdbc(MYSQL_URL, schema + foreignKeyTable[1], connectionProperties())
                         .select(foreignKeyColumnTable2[1]);
 
                 Dataset<Row> dataframeFromDB = dataframeFromDB1.join(dataframeFromDB2);
@@ -199,7 +203,7 @@ public class TransformSpark {
 
                 Dataset<Row> dataframeFromDB = spark
                         .read()
-                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[0], connectionProperties())
+                        .jdbc(MYSQL_URL, schema + foreignKeyTable[0], connectionProperties())
                         .select(foreignKeyColumnTable2);
 
                 invalidData = newDataFrameKeys
@@ -211,12 +215,12 @@ public class TransformSpark {
 
                 Dataset<Row> dataframeFromDB1 = spark
                         .read()
-                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[0], connectionProperties())
+                        .jdbc(MYSQL_URL, schema + foreignKeyTable[0], connectionProperties())
                         .select(foreignKeyColumnTable2[0]);
 
                 Dataset<Row> dataframeFromDB2 = spark
                         .read()
-                        .jdbc(MYSQL_URL, "warehouse." + foreignKeyTable[1], connectionProperties())
+                        .jdbc(MYSQL_URL, schema + foreignKeyTable[1], connectionProperties())
                         .select(foreignKeyColumnTable2[1]);
 
                 Dataset<Row> dataframeFromDB = dataframeFromDB1.join(dataframeFromDB2);

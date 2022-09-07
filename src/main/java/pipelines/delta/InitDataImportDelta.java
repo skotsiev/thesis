@@ -12,7 +12,7 @@ import pipelines.spark.InitialDataImport;
 import java.util.ArrayList;
 
 import static etl.common.Constants.tableList;
-import static etl.common.Utils.elapsedTime;
+import static etl.common.Utils.elapsedTimeSeconds;
 
 public class InitDataImportDelta {
     final static Logger logger = LogManager.getLogger(InitialDataImport.class);
@@ -44,13 +44,13 @@ public class InitDataImportDelta {
                 execute(i);
                 long endLoop = System.currentTimeMillis();
                 long elapsedTimeLoop = endLoop - startLoop;
-                String elapsedTimeString = elapsedTime(elapsedTimeLoop);
+                String elapsedTimeString = elapsedTimeSeconds(elapsedTimeLoop);
                 System.out.println("[" + getClass().getSimpleName() + "]\t" + "Total time to import: " + i + ":" + elapsedTimeString);
                 logger.info("[" + getClass().getSimpleName() + "]\t" + "Total time to import "  + i + ":" + elapsedTimeString);
             }
             long end = System.currentTimeMillis();
             long elapsedTime = end - start;
-            String elapsedTimeString = elapsedTime(elapsedTime);
+            String elapsedTimeString = elapsedTimeSeconds(elapsedTime);
             System.out.println("[" + getClass().getSimpleName() + "]\t" + "Pipeline elapsed time: " + elapsedTimeString);
             logger.info("[" + getClass().getSimpleName() + "]\t" + "Pipeline elapsed time: " + elapsedTimeString);
         }
